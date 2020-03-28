@@ -6,45 +6,42 @@ import (
 	"unicode/utf8"
 )
 
-func Read(r io.Reader) (Key, error) {
-	var buf [16]byte
+// Input reads input keys from a reader and returns the key pressed.
+type Input struct {
+	buf []byte
+}
 
-	n, err := r.Read(buf[:])
+// NewInput creates an Input ready to use.
+func NewInput() *Input {
+	return &Input{buf: make([]byte, 16)}
+}
+
+// ReadKey reads a key from r.
+func (i *Input) ReadKey(r io.Reader) (Key, error) {
+	n, err := r.Read(i.buf)
 	if err != nil {
 		return 0, err
 	}
 
-	c, sz := utf8.DecodeRune(buf[:])
+	c, sz := utf8.DecodeRune(i.buf[:n])
 	if c == utf8.RuneError && sz < 2 {
 		return 0, errors.New("invalid rune")
 	}
 
 	// if c is a control character
-	if n == 1 && KeyType(c) <= KeyUS {
+	if n == 1 && (KeyType(c) <= KeyUS || KeyType(c) == KeyDEL) {
 		return keyFromTypeMod(KeyType(c), ModNone), nil
 	}
 
 	// sequences
-	key, ok := keySequences[string(buf[:n])]
+	key, ok := keySequences[string(i.buf[:n])]
 	if ok {
 		var mod Mod
-
-		// TODO: better more general way to extract/do this?
-		switch key {
-		case keyShiftLeft:
-			key = KeyLeft
-			mod |= ModShift
-		case keyShiftRight:
-			key = KeyRight
-			mod |= ModShift
-		case keyAltLeft:
-			key = KeyLeft
-			mod |= ModAlt
-		case keyAltRight:
-			key = KeyRight
-			mod |= ModAlt
+		if key > KeyDEL {
+			// key with modifiers set
+			mod = Mod((key & 0b_0111_0000) >> 4)
+			key = (key & 0b_0000_1111) + KeyRune + 1
 		}
-
 		return keyFromTypeMod(key, mod), nil
 	}
 
@@ -76,6 +73,10 @@ func keyFromTypeMod(t KeyType, m Mod) Key {
 // TODO: String for Key
 
 func (k Key) Rune() rune {
+	r := rune(k)
+	if r < 0 {
+		return -1
+	}
 	return rune(k)
 }
 
@@ -102,14 +103,13 @@ const (
 	ModShift Mod = 1 << iota
 	ModCtrl
 	ModAlt
-	ModMeta
 	ModNone Mod = 0
 )
 
 // KeyType represents the type of key.
 type KeyType byte
 
-// List of key types.
+// Supported key types - the following match the ASCII value.
 const (
 	KeyNUL KeyType = iota
 	KeySOH
@@ -143,13 +143,12 @@ const (
 	KeyGS
 	KeyRS
 	KeyUS
+	KeyRune // covers ASCII 32-126 + any other unicode code point
 
-	// others
-	KeyRune
+	KeyLeft
+	KeyRight
 	KeyUp
 	KeyDown
-	KeyRight
-	KeyLeft
 	KeyInsert
 	KeyBacktab
 	KeyDelete
@@ -178,21 +177,24 @@ const (
 	KeyF19
 	KeyF20
 
-	// variants
-	keyShiftLeft
-	keyShiftRight
-	keyAltLeft
-	keyAltRight
+	KeyDEL KeyType = 0x7f
+
+	// keys with modifiers - values above 127 with the bits 6-5-4 indicating the
+	// modifiers and the low 4 bits the actual key (up to 16 values,
+	// corresponding to  KeyType(KeyRune + 1 + low 4 bits value).
+	keyShiftLeft  = 0b_1001_0000
+	keyShiftRight = 0b_1001_0001
+	keyAltLeft    = 0b_1100_0000
+	keyAltRight   = 0b_1100_0001
 )
 
 var keySequences = map[string]KeyType{
-	"\x1b[A":  KeyUp,
-	"\x1b[B":  KeyDown,
-	"\x1b[C":  KeyRight,
-	"\x1b[D":  KeyLeft,
-	"\x1b[2~": KeyInsert,
-	"\x1b[3~": KeyDelete,
-	//"\u007f":     KeyBackspace,
+	"\x1b[A":     KeyUp,
+	"\x1b[B":     KeyDown,
+	"\x1b[C":     KeyRight,
+	"\x1b[D":     KeyLeft,
+	"\x1b[2~":    KeyInsert,
+	"\x1b[3~":    KeyDelete,
 	"\x1b[Z":     KeyBacktab,
 	"\x1bOH":     KeyHome,
 	"\x1bOF":     KeyEnd,

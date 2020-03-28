@@ -1,5 +1,7 @@
 package zzterm
 
+import "fmt"
+
 // Key represents a single key. It contains the key type,
 // the key modifier flags and the rune itself in a compact
 // form. Use the Rune, Type and Mod methods to get information
@@ -22,7 +24,13 @@ func keyFromTypeMod(t KeyType, m Mod) Key {
 	return k
 }
 
-// TODO: String for Key
+// String returns the string representation of k.
+func (k Key) String() string {
+	if k.Type() == KeyRune {
+		return fmt.Sprintf("%q", string(k.Rune()))
+	}
+	return fmt.Sprintf("%0x", k.Type())
+}
 
 // Rune returns the rune corresponding to this key. It returns -1
 // if the KeyType is not KeyRune.

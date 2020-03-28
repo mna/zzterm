@@ -73,255 +73,255 @@ func escFromTerminfo(tinfo map[string]string) map[string]Key {
 		}
 		switch k {
 		case "KeyBackspace":
-			m[k] = keyFromTypeMod(KeyBS, ModNone)
+			m[v] = keyFromTypeMod(KeyBS, ModNone)
 		case "KeyF1":
-			m[k] = keyFromTypeMod(KeyF1, ModNone)
+			m[v] = keyFromTypeMod(KeyF1, ModNone)
 		case "KeyF2":
-			m[k] = keyFromTypeMod(KeyF2, ModNone)
+			m[v] = keyFromTypeMod(KeyF2, ModNone)
 		case "KeyF3":
-			m[k] = keyFromTypeMod(KeyF3, ModNone)
+			m[v] = keyFromTypeMod(KeyF3, ModNone)
 		case "KeyF4":
-			m[k] = keyFromTypeMod(KeyF4, ModNone)
+			m[v] = keyFromTypeMod(KeyF4, ModNone)
 		case "KeyF5":
-			m[k] = keyFromTypeMod(KeyF5, ModNone)
+			m[v] = keyFromTypeMod(KeyF5, ModNone)
 		case "KeyF6":
-			m[k] = keyFromTypeMod(KeyF6, ModNone)
+			m[v] = keyFromTypeMod(KeyF6, ModNone)
 		case "KeyF7":
-			m[k] = keyFromTypeMod(KeyF7, ModNone)
+			m[v] = keyFromTypeMod(KeyF7, ModNone)
 		case "KeyF8":
-			m[k] = keyFromTypeMod(KeyF8, ModNone)
+			m[v] = keyFromTypeMod(KeyF8, ModNone)
 		case "KeyF9":
-			m[k] = keyFromTypeMod(KeyF9, ModNone)
+			m[v] = keyFromTypeMod(KeyF9, ModNone)
 		case "KeyF10":
-			m[k] = keyFromTypeMod(KeyF10, ModNone)
+			m[v] = keyFromTypeMod(KeyF10, ModNone)
 		case "KeyF11":
-			m[k] = keyFromTypeMod(KeyF11, ModNone)
+			m[v] = keyFromTypeMod(KeyF11, ModNone)
 		case "KeyF12":
-			m[k] = keyFromTypeMod(KeyF12, ModNone)
+			m[v] = keyFromTypeMod(KeyF12, ModNone)
 		case "KeyF13":
-			m[k] = keyFromTypeMod(KeyF13, ModNone)
+			m[v] = keyFromTypeMod(KeyF13, ModNone)
 		case "KeyF14":
-			m[k] = keyFromTypeMod(KeyF14, ModNone)
+			m[v] = keyFromTypeMod(KeyF14, ModNone)
 		case "KeyF15":
-			m[k] = keyFromTypeMod(KeyF15, ModNone)
+			m[v] = keyFromTypeMod(KeyF15, ModNone)
 		case "KeyF16":
-			m[k] = keyFromTypeMod(KeyF16, ModNone)
+			m[v] = keyFromTypeMod(KeyF16, ModNone)
 		case "KeyF17":
-			m[k] = keyFromTypeMod(KeyF17, ModNone)
+			m[v] = keyFromTypeMod(KeyF17, ModNone)
 		case "KeyF18":
-			m[k] = keyFromTypeMod(KeyF18, ModNone)
+			m[v] = keyFromTypeMod(KeyF18, ModNone)
 		case "KeyF19":
-			m[k] = keyFromTypeMod(KeyF19, ModNone)
+			m[v] = keyFromTypeMod(KeyF19, ModNone)
 		case "KeyF20":
-			m[k] = keyFromTypeMod(KeyF20, ModNone)
+			m[v] = keyFromTypeMod(KeyF20, ModNone)
 		case "KeyF21":
-			m[k] = keyFromTypeMod(KeyF21, ModNone)
+			m[v] = keyFromTypeMod(KeyF21, ModNone)
 		case "KeyF22":
-			m[k] = keyFromTypeMod(KeyF22, ModNone)
+			m[v] = keyFromTypeMod(KeyF22, ModNone)
 		case "KeyF23":
-			m[k] = keyFromTypeMod(KeyF23, ModNone)
+			m[v] = keyFromTypeMod(KeyF23, ModNone)
 		case "KeyF24":
-			m[k] = keyFromTypeMod(KeyF24, ModNone)
+			m[v] = keyFromTypeMod(KeyF24, ModNone)
 		case "KeyF25":
-			m[k] = keyFromTypeMod(KeyF25, ModNone)
+			m[v] = keyFromTypeMod(KeyF25, ModNone)
 		case "KeyF26":
-			m[k] = keyFromTypeMod(KeyF26, ModNone)
+			m[v] = keyFromTypeMod(KeyF26, ModNone)
 		case "KeyF27":
-			m[k] = keyFromTypeMod(KeyF27, ModNone)
+			m[v] = keyFromTypeMod(KeyF27, ModNone)
 		case "KeyF28":
-			m[k] = keyFromTypeMod(KeyF28, ModNone)
+			m[v] = keyFromTypeMod(KeyF28, ModNone)
 		case "KeyF29":
-			m[k] = keyFromTypeMod(KeyF29, ModNone)
+			m[v] = keyFromTypeMod(KeyF29, ModNone)
 		case "KeyF30":
-			m[k] = keyFromTypeMod(KeyF30, ModNone)
+			m[v] = keyFromTypeMod(KeyF30, ModNone)
 		case "KeyF31":
-			m[k] = keyFromTypeMod(KeyF31, ModNone)
+			m[v] = keyFromTypeMod(KeyF31, ModNone)
 		case "KeyF32":
-			m[k] = keyFromTypeMod(KeyF32, ModNone)
+			m[v] = keyFromTypeMod(KeyF32, ModNone)
 		case "KeyF33":
-			m[k] = keyFromTypeMod(KeyF33, ModNone)
+			m[v] = keyFromTypeMod(KeyF33, ModNone)
 		case "KeyF34":
-			m[k] = keyFromTypeMod(KeyF34, ModNone)
+			m[v] = keyFromTypeMod(KeyF34, ModNone)
 		case "KeyF35":
-			m[k] = keyFromTypeMod(KeyF35, ModNone)
+			m[v] = keyFromTypeMod(KeyF35, ModNone)
 		case "KeyF36":
-			m[k] = keyFromTypeMod(KeyF36, ModNone)
+			m[v] = keyFromTypeMod(KeyF36, ModNone)
 		case "KeyF37":
-			m[k] = keyFromTypeMod(KeyF37, ModNone)
+			m[v] = keyFromTypeMod(KeyF37, ModNone)
 		case "KeyF38":
-			m[k] = keyFromTypeMod(KeyF38, ModNone)
+			m[v] = keyFromTypeMod(KeyF38, ModNone)
 		case "KeyF39":
-			m[k] = keyFromTypeMod(KeyF39, ModNone)
+			m[v] = keyFromTypeMod(KeyF39, ModNone)
 		case "KeyF40":
-			m[k] = keyFromTypeMod(KeyF40, ModNone)
+			m[v] = keyFromTypeMod(KeyF40, ModNone)
 		case "KeyF41":
-			m[k] = keyFromTypeMod(KeyF41, ModNone)
+			m[v] = keyFromTypeMod(KeyF41, ModNone)
 		case "KeyF42":
-			m[k] = keyFromTypeMod(KeyF42, ModNone)
+			m[v] = keyFromTypeMod(KeyF42, ModNone)
 		case "KeyF43":
-			m[k] = keyFromTypeMod(KeyF43, ModNone)
+			m[v] = keyFromTypeMod(KeyF43, ModNone)
 		case "KeyF44":
-			m[k] = keyFromTypeMod(KeyF44, ModNone)
+			m[v] = keyFromTypeMod(KeyF44, ModNone)
 		case "KeyF45":
-			m[k] = keyFromTypeMod(KeyF45, ModNone)
+			m[v] = keyFromTypeMod(KeyF45, ModNone)
 		case "KeyF46":
-			m[k] = keyFromTypeMod(KeyF46, ModNone)
+			m[v] = keyFromTypeMod(KeyF46, ModNone)
 		case "KeyF47":
-			m[k] = keyFromTypeMod(KeyF47, ModNone)
+			m[v] = keyFromTypeMod(KeyF47, ModNone)
 		case "KeyF48":
-			m[k] = keyFromTypeMod(KeyF48, ModNone)
+			m[v] = keyFromTypeMod(KeyF48, ModNone)
 		case "KeyF49":
-			m[k] = keyFromTypeMod(KeyF49, ModNone)
+			m[v] = keyFromTypeMod(KeyF49, ModNone)
 		case "KeyF50":
-			m[k] = keyFromTypeMod(KeyF50, ModNone)
+			m[v] = keyFromTypeMod(KeyF50, ModNone)
 		case "KeyF51":
-			m[k] = keyFromTypeMod(KeyF51, ModNone)
+			m[v] = keyFromTypeMod(KeyF51, ModNone)
 		case "KeyF52":
-			m[k] = keyFromTypeMod(KeyF52, ModNone)
+			m[v] = keyFromTypeMod(KeyF52, ModNone)
 		case "KeyF53":
-			m[k] = keyFromTypeMod(KeyF53, ModNone)
+			m[v] = keyFromTypeMod(KeyF53, ModNone)
 		case "KeyF54":
-			m[k] = keyFromTypeMod(KeyF54, ModNone)
+			m[v] = keyFromTypeMod(KeyF54, ModNone)
 		case "KeyF55":
-			m[k] = keyFromTypeMod(KeyF55, ModNone)
+			m[v] = keyFromTypeMod(KeyF55, ModNone)
 		case "KeyF56":
-			m[k] = keyFromTypeMod(KeyF56, ModNone)
+			m[v] = keyFromTypeMod(KeyF56, ModNone)
 		case "KeyF57":
-			m[k] = keyFromTypeMod(KeyF57, ModNone)
+			m[v] = keyFromTypeMod(KeyF57, ModNone)
 		case "KeyF58":
-			m[k] = keyFromTypeMod(KeyF58, ModNone)
+			m[v] = keyFromTypeMod(KeyF58, ModNone)
 		case "KeyF59":
-			m[k] = keyFromTypeMod(KeyF59, ModNone)
+			m[v] = keyFromTypeMod(KeyF59, ModNone)
 		case "KeyF60":
-			m[k] = keyFromTypeMod(KeyF60, ModNone)
+			m[v] = keyFromTypeMod(KeyF60, ModNone)
 		case "KeyF61":
-			m[k] = keyFromTypeMod(KeyF61, ModNone)
+			m[v] = keyFromTypeMod(KeyF61, ModNone)
 		case "KeyF62":
-			m[k] = keyFromTypeMod(KeyF62, ModNone)
+			m[v] = keyFromTypeMod(KeyF62, ModNone)
 		case "KeyF63":
-			m[k] = keyFromTypeMod(KeyF63, ModNone)
+			m[v] = keyFromTypeMod(KeyF63, ModNone)
 		case "KeyF64":
-			m[k] = keyFromTypeMod(KeyF64, ModNone)
+			m[v] = keyFromTypeMod(KeyF64, ModNone)
 		case "KeyInsert":
-			m[k] = keyFromTypeMod(KeyInsert, ModNone)
+			m[v] = keyFromTypeMod(KeyInsert, ModNone)
 		case "KeyDelete":
-			m[k] = keyFromTypeMod(KeyDelete, ModNone)
+			m[v] = keyFromTypeMod(KeyDelete, ModNone)
 		case "KeyHome":
-			m[k] = keyFromTypeMod(KeyHome, ModNone)
+			m[v] = keyFromTypeMod(KeyHome, ModNone)
 		case "KeyEnd":
-			m[k] = keyFromTypeMod(KeyEnd, ModNone)
+			m[v] = keyFromTypeMod(KeyEnd, ModNone)
 		case "KeyHelp":
-			m[k] = keyFromTypeMod(KeyHelp, ModNone)
+			m[v] = keyFromTypeMod(KeyHelp, ModNone)
 		case "KeyPgUp":
-			m[k] = keyFromTypeMod(KeyPgUp, ModNone)
+			m[v] = keyFromTypeMod(KeyPgUp, ModNone)
 		case "KeyPgDn":
-			m[k] = keyFromTypeMod(KeyPgDn, ModNone)
+			m[v] = keyFromTypeMod(KeyPgDn, ModNone)
 		case "KeyUp":
-			m[k] = keyFromTypeMod(KeyUp, ModNone)
+			m[v] = keyFromTypeMod(KeyUp, ModNone)
 		case "KeyDown":
-			m[k] = keyFromTypeMod(KeyDown, ModNone)
+			m[v] = keyFromTypeMod(KeyDown, ModNone)
 		case "KeyLeft":
-			m[k] = keyFromTypeMod(KeyLeft, ModNone)
+			m[v] = keyFromTypeMod(KeyLeft, ModNone)
 		case "KeyRight":
-			m[k] = keyFromTypeMod(KeyRight, ModNone)
+			m[v] = keyFromTypeMod(KeyRight, ModNone)
 		case "KeyBacktab":
-			m[k] = keyFromTypeMod(KeyBacktab, ModNone)
+			m[v] = keyFromTypeMod(KeyBacktab, ModNone)
 		case "KeyExit":
-			m[k] = keyFromTypeMod(KeyExit, ModNone)
+			m[v] = keyFromTypeMod(KeyExit, ModNone)
 		case "KeyClear":
-			m[k] = keyFromTypeMod(KeyClear, ModNone)
+			m[v] = keyFromTypeMod(KeyClear, ModNone)
 		case "KeyPrint":
-			m[k] = keyFromTypeMod(KeyPrint, ModNone)
+			m[v] = keyFromTypeMod(KeyPrint, ModNone)
 		case "KeyCancel":
-			m[k] = keyFromTypeMod(KeyCancel, ModNone)
+			m[v] = keyFromTypeMod(KeyCancel, ModNone)
 		case "KeyShfRight":
-			m[k] = keyFromTypeMod(KeyRight, ModShift)
+			m[v] = keyFromTypeMod(KeyRight, ModShift)
 		case "KeyShfLeft":
-			m[k] = keyFromTypeMod(KeyLeft, ModShift)
+			m[v] = keyFromTypeMod(KeyLeft, ModShift)
 		case "KeyShfHome":
-			m[k] = keyFromTypeMod(KeyHome, ModShift)
+			m[v] = keyFromTypeMod(KeyHome, ModShift)
 		case "KeyShfEnd":
-			m[k] = keyFromTypeMod(KeyEnd, ModShift)
+			m[v] = keyFromTypeMod(KeyEnd, ModShift)
 		case "KeyShfUp":
-			m[k] = keyFromTypeMod(KeyUp, ModShift)
+			m[v] = keyFromTypeMod(KeyUp, ModShift)
 		case "KeyShfDown":
-			m[k] = keyFromTypeMod(KeyDown, ModShift)
+			m[v] = keyFromTypeMod(KeyDown, ModShift)
 		case "KeyShfPgUp":
-			m[k] = keyFromTypeMod(KeyPgUp, ModShift)
+			m[v] = keyFromTypeMod(KeyPgUp, ModShift)
 		case "KeyShfPgDn":
-			m[k] = keyFromTypeMod(KeyPgDn, ModShift)
+			m[v] = keyFromTypeMod(KeyPgDn, ModShift)
 		case "KeyCtrlUp":
-			m[k] = keyFromTypeMod(KeyUp, ModCtrl)
+			m[v] = keyFromTypeMod(KeyUp, ModCtrl)
 		case "KeyCtrlDown":
-			m[k] = keyFromTypeMod(KeyDown, ModCtrl)
+			m[v] = keyFromTypeMod(KeyDown, ModCtrl)
 		case "KeyCtrlRight":
-			m[k] = keyFromTypeMod(KeyRight, ModCtrl)
+			m[v] = keyFromTypeMod(KeyRight, ModCtrl)
 		case "KeyCtrlLeft":
-			m[k] = keyFromTypeMod(KeyLeft, ModCtrl)
+			m[v] = keyFromTypeMod(KeyLeft, ModCtrl)
 		case "KeyMetaUp":
-			m[k] = keyFromTypeMod(KeyUp, ModMeta)
+			m[v] = keyFromTypeMod(KeyUp, ModMeta)
 		case "KeyMetaDown":
-			m[k] = keyFromTypeMod(KeyDown, ModMeta)
+			m[v] = keyFromTypeMod(KeyDown, ModMeta)
 		case "KeyMetaRight":
-			m[k] = keyFromTypeMod(KeyRight, ModMeta)
+			m[v] = keyFromTypeMod(KeyRight, ModMeta)
 		case "KeyMetaLeft":
-			m[k] = keyFromTypeMod(KeyLeft, ModMeta)
+			m[v] = keyFromTypeMod(KeyLeft, ModMeta)
 		case "KeyAltUp":
-			m[k] = keyFromTypeMod(KeyUp, ModAlt)
+			m[v] = keyFromTypeMod(KeyUp, ModAlt)
 		case "KeyAltDown":
-			m[k] = keyFromTypeMod(KeyDown, ModAlt)
+			m[v] = keyFromTypeMod(KeyDown, ModAlt)
 		case "KeyAltRight":
-			m[k] = keyFromTypeMod(KeyRight, ModAlt)
+			m[v] = keyFromTypeMod(KeyRight, ModAlt)
 		case "KeyAltLeft":
-			m[k] = keyFromTypeMod(KeyLeft, ModAlt)
+			m[v] = keyFromTypeMod(KeyLeft, ModAlt)
 		case "KeyCtrlHome":
-			m[k] = keyFromTypeMod(KeyHome, ModCtrl)
+			m[v] = keyFromTypeMod(KeyHome, ModCtrl)
 		case "KeyCtrlEnd":
-			m[k] = keyFromTypeMod(KeyEnd, ModCtrl)
+			m[v] = keyFromTypeMod(KeyEnd, ModCtrl)
 		case "KeyMetaHome":
-			m[k] = keyFromTypeMod(KeyHome, ModMeta)
+			m[v] = keyFromTypeMod(KeyHome, ModMeta)
 		case "KeyMetaEnd":
-			m[k] = keyFromTypeMod(KeyEnd, ModMeta)
+			m[v] = keyFromTypeMod(KeyEnd, ModMeta)
 		case "KeyAltHome":
-			m[k] = keyFromTypeMod(KeyHome, ModAlt)
+			m[v] = keyFromTypeMod(KeyHome, ModAlt)
 		case "KeyAltEnd":
-			m[k] = keyFromTypeMod(KeyEnd, ModAlt)
+			m[v] = keyFromTypeMod(KeyEnd, ModAlt)
 		case "KeyAltShfUp":
-			m[k] = keyFromTypeMod(KeyUp, ModAlt|ModShift)
+			m[v] = keyFromTypeMod(KeyUp, ModAlt|ModShift)
 		case "KeyAltShfDown":
-			m[k] = keyFromTypeMod(KeyDown, ModAlt|ModShift)
+			m[v] = keyFromTypeMod(KeyDown, ModAlt|ModShift)
 		case "KeyAltShfLeft":
-			m[k] = keyFromTypeMod(KeyLeft, ModAlt|ModShift)
+			m[v] = keyFromTypeMod(KeyLeft, ModAlt|ModShift)
 		case "KeyAltShfRight":
-			m[k] = keyFromTypeMod(KeyRight, ModAlt|ModShift)
+			m[v] = keyFromTypeMod(KeyRight, ModAlt|ModShift)
 		case "KeyMetaShfUp":
-			m[k] = keyFromTypeMod(KeyUp, ModMeta|ModShift)
+			m[v] = keyFromTypeMod(KeyUp, ModMeta|ModShift)
 		case "KeyMetaShfDown":
-			m[k] = keyFromTypeMod(KeyDown, ModMeta|ModShift)
+			m[v] = keyFromTypeMod(KeyDown, ModMeta|ModShift)
 		case "KeyMetaShfLeft":
-			m[k] = keyFromTypeMod(KeyLeft, ModMeta|ModShift)
+			m[v] = keyFromTypeMod(KeyLeft, ModMeta|ModShift)
 		case "KeyMetaShfRight":
-			m[k] = keyFromTypeMod(KeyRight, ModMeta|ModShift)
+			m[v] = keyFromTypeMod(KeyRight, ModMeta|ModShift)
 		case "KeyCtrlShfUp":
-			m[k] = keyFromTypeMod(KeyUp, ModCtrl|ModShift)
+			m[v] = keyFromTypeMod(KeyUp, ModCtrl|ModShift)
 		case "KeyCtrlShfDown":
-			m[k] = keyFromTypeMod(KeyDown, ModCtrl|ModShift)
+			m[v] = keyFromTypeMod(KeyDown, ModCtrl|ModShift)
 		case "KeyCtrlShfLeft":
-			m[k] = keyFromTypeMod(KeyLeft, ModCtrl|ModShift)
+			m[v] = keyFromTypeMod(KeyLeft, ModCtrl|ModShift)
 		case "KeyCtrlShfRight":
-			m[k] = keyFromTypeMod(KeyRight, ModCtrl|ModShift)
+			m[v] = keyFromTypeMod(KeyRight, ModCtrl|ModShift)
 		case "KeyCtrlShfHome":
-			m[k] = keyFromTypeMod(KeyHome, ModCtrl|ModShift)
+			m[v] = keyFromTypeMod(KeyHome, ModCtrl|ModShift)
 		case "KeyCtrlShfEnd":
-			m[k] = keyFromTypeMod(KeyEnd, ModCtrl|ModShift)
+			m[v] = keyFromTypeMod(KeyEnd, ModCtrl|ModShift)
 		case "KeyAltShfHome":
-			m[k] = keyFromTypeMod(KeyHome, ModAlt|ModShift)
+			m[v] = keyFromTypeMod(KeyHome, ModAlt|ModShift)
 		case "KeyAltShfEnd":
-			m[k] = keyFromTypeMod(KeyEnd, ModAlt|ModShift)
+			m[v] = keyFromTypeMod(KeyEnd, ModAlt|ModShift)
 		case "KeyMetaShfHome":
-			m[k] = keyFromTypeMod(KeyHome, ModMeta|ModShift)
+			m[v] = keyFromTypeMod(KeyHome, ModMeta|ModShift)
 		case "KeyMetaShfEnd":
-			m[k] = keyFromTypeMod(KeyEnd, ModMeta|ModShift)
+			m[v] = keyFromTypeMod(KeyEnd, ModMeta|ModShift)
 		}
 	}
 	return m

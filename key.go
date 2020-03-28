@@ -75,7 +75,7 @@ const (
 // KeyType represents the type of key.
 type KeyType byte
 
-// Supported key types - the following match the ASCII value.
+// List of supported key types.
 const (
 	KeyNUL KeyType = iota
 	KeySOH
@@ -109,7 +109,7 @@ const (
 	KeyGS
 	KeyRS
 	KeyUS
-	KeyRune // covers ASCII 32-126 + any other unicode code point
+	KeyRune // covers ASCII 32-126 + any other unicode code point - from this point the key type does not match ASCII values
 	KeyLeft
 	KeyRight
 	KeyUp
@@ -191,5 +191,5 @@ const (
 	KeyCancel
 	KeyPrint // 112
 
-	KeyDEL KeyType = 0x7f
+	KeyDEL KeyType = 127
 )

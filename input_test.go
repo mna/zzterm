@@ -28,11 +28,9 @@ func TestInput_ReadKey(t *testing.T) {
 		{"\x1b[3~", -1, KeyDelete, ModNone},
 		{"\x1b[1;2D", -1, KeyLeft, ModShift},
 		{"\x1b[1;2C", -1, KeyRight, ModShift},
-		{"\x1bb", -1, KeyLeft, ModAlt},
-		{"\x1bf", -1, KeyRight, ModAlt},
 	}
 
-	input := NewInput()
+	input := NewInput(nil)
 	for _, c := range cases {
 		t.Run(c.in, func(t *testing.T) {
 			k, err := input.ReadKey(strings.NewReader(c.in))
@@ -61,7 +59,7 @@ func BenchmarkInput_ReadKey(b *testing.B) {
 		"\x1b[B", "\x1b[1;2C",
 	}
 	for _, c := range cases {
-		input := NewInput()
+		input := NewInput(nil)
 		b.Run(c, func(b *testing.B) {
 			r := strings.NewReader(c)
 			b.ResetTimer()

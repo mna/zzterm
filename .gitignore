@@ -1,0 +1,11 @@
+# environment files
+.env*
+
+# compiled binary
+/out 
+
+# output of various helper commands
+*.out
+
+# binaries
+/bin/

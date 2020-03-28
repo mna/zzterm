@@ -17,7 +17,7 @@ tasks:
 
   - test: |
       cd zzterm
-      go test -v -vet all ./...
+      go test -v -vet all -bench . -benchmem ./...
 
   - cover: |
       cd zzterm

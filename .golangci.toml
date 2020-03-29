@@ -27,7 +27,7 @@
   # NOTE: using this instead of [[issues.exclude-rules]] as vim/ALE respects those
   # exclusions, but does not respect the specific exclude-rules(?).
   exclude = [
-    "`BenchmarkResult` is a global variable",
+    "`Benchmark.+` is a global variable",
     "`defaultEsc` is a global variable",
   ]
 

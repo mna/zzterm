@@ -127,7 +127,7 @@ const (
 	KeyGS
 	KeyRS
 	KeyUS
-	KeyRune // covers ASCII 32-126 + any other unicode code point - from this point the key type does not match ASCII values
+	KeyRune // covers ASCII 32-126 + any other unicode code point - from this point on the key type does not match ASCII values
 	KeyLeft
 	KeyRight
 	KeyUp
@@ -207,7 +207,8 @@ const (
 	KeyExit
 	KeyClear
 	KeyCancel
-	KeyPrint // 112
+	KeyPrint
+	KeyESCSeq // 113
 
 	KeyDEL KeyType = 127
 )

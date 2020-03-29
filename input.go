@@ -8,8 +8,9 @@ import (
 
 // Input reads input keys from a reader and returns the key pressed.
 type Input struct {
-	buf []byte
-	esc map[string]Key
+	buf   []byte
+	lastn int
+	esc   map[string]Key
 }
 
 // NewInput creates an Input ready to use. The tinfo map is an optional
@@ -19,7 +20,10 @@ type Input struct {
 // Only the fields starting with "Key" are supported, and only the
 // key sequences starting with ESC (0x1b) are considered.
 //
-// If nil is passed, common default values are used.
+// If nil is passed, common default values are used. To prevent
+// any translation of escape sequences to special keys, pass a non-nil
+// empty map. All escape sequences will be returned as KeyESCSeq and the
+// raw bytes of the sequence can be retrieved by calling Input.Bytes.
 //
 // If you want to use tcell's terminfo definitions directly, you can
 // use the helper function FromTerminfo that accepts an interface{}
@@ -33,12 +37,23 @@ func NewInput(tinfo map[string]string) *Input {
 	}
 }
 
+// Bytes returns the uninterpreted bytes from the last key read. The bytes
+// are valid only until the next call to ReadKey and should not be modified.
+func (i *Input) Bytes() []byte {
+	if i.lastn <= 0 {
+		return nil
+	}
+	return i.buf[:i.lastn:i.lastn]
+}
+
 // ReadKey reads a key from r.
 func (i *Input) ReadKey(r io.Reader) (Key, error) {
+	i.lastn = 0
 	n, err := r.Read(i.buf)
 	if err != nil || n == 0 {
 		return 0, err
 	}
+	i.lastn = n
 
 	c, sz := utf8.DecodeRune(i.buf[:n])
 	if c == utf8.RuneError && sz < 2 {
@@ -59,6 +74,9 @@ func (i *Input) ReadKey(r io.Reader) (Key, error) {
 		if key, ok := i.esc[string(i.buf[:n])]; ok {
 			return key, nil
 		}
+		// if this is an unknown escape sequence, return KeyESCSeq and the
+		// caller may get the uninterpreted sequence from i.Bytes.
+		return keyFromTypeMod(KeyESCSeq, ModNone), nil
 	}
 	return Key(c), nil
 }

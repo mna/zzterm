@@ -208,7 +208,10 @@ const (
 	KeyClear
 	KeyCancel
 	KeyPrint
-	KeyESCSeq // 113
+	KeyESCSeq
+	KeyMouse
+	KeyFocusIn
+	KeyFocusOut // 116
 
 	KeyDEL KeyType = 127
 )

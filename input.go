@@ -2,6 +2,7 @@ package zzterm
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"unicode/utf8"
 )
@@ -11,6 +12,8 @@ type Input struct {
 	buf   []byte
 	lastn int
 	esc   map[string]Key
+	mouse MouseEventType // 0=no mouse event
+	focus bool           // false=no focus event
 }
 
 // Option defines the function signatures for options to apply when
@@ -41,6 +44,82 @@ type Option func(*Input) error
 func WithESCSeq(tinfo map[string]string) Option {
 	return func(i *Input) error {
 		i.esc = escFromTerminfo(tinfo)
+		return nil
+	}
+}
+
+// MouseEventType represents a type of mouse events.
+type MouseEventType int
+
+// List of supported mouse event types.
+const (
+	MouseButton MouseEventType = iota + 1 // CSI ? 1000 h
+	_                                     // unsupported but reserved, CSI ? 1001 h
+	_                                     // unsupported but reserved, CSI ? 1002 h
+	MouseAny                              // CSI ? 1003 h
+)
+
+// EnableMouse sends the Control Sequence Introducer (CSI) function to
+// w to enable tracking of the specified mouse event type in SGR mode.
+func EnableMouse(w io.Writer, eventType MouseEventType) error {
+	code := eventType + 1000 - 1
+	_, err := fmt.Fprintf(w, "\x1b[?%d;1006h", code)
+	return err
+}
+
+// DisableMouse sends the Control Sequence Introducer (CSI) function to
+// w to disable tracking of the specified mouse event type and to disable
+// SGR mode.
+func DisableMouse(w io.Writer, eventType MouseEventType) error {
+	code := eventType + 1000 - 1
+	_, err := fmt.Fprintf(w, "\x1b[?%d;1006l", code)
+	return err
+}
+
+// EnableFocus sends the Control Sequence Introducer (CSI) function to
+// w to enable sending focus escape sequences.
+func EnableFocus(w io.Writer) error {
+	_, err := fmt.Fprint(w, "\x1b[?1004h")
+	return err
+}
+
+// DisableFocus sends the Control Sequence Introducer (CSI) function to
+// w to disable sending focus escape sequences.
+func DisableFocus(w io.Writer) error {
+	_, err := fmt.Fprint(w, "\x1b[?1004l")
+	return err
+}
+
+// WithMouse enables mouse event reporting.  Such events will be reported as a
+// key with type KeyMouse. It is the responsibility of the caller to enable
+// mouse tracking for the terminal represented by the io.Reader passed to
+// ReadKey, and SGR Mouse Mode must be enabled. Not all tracking modes are
+// supported, see MouseEventType constants for supported modes. As a
+// convenience, the package provides the EnableMouse and DisableMouse
+// functions to enable and disable mouse tracking on a terminal represented by
+// an io.Writer.
+//
+// Only X11 xterm mouse protocol in SGR mouse mode is supported. This should
+// be widely supported by any recent terminal with mouse support.  See
+// https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h2-Mouse-Tracking
+func WithMouse(eventType MouseEventType) Option {
+	return func(i *Input) error {
+		i.mouse = eventType
+		return nil
+	}
+}
+
+// WithFocus enables reporting of focus in and focus out events when the
+// terminal gets and loses focus. Such events will be reported as a key with
+// type KeyFocusIn or KeyFocusOut. It is the responsibility of the caller to
+// enable focus tracking for the terminal represented by the io.Reader passed
+// to ReadKey. As a convenience, the package provides the EnableFocus and
+// DisableFocus functions to enable and disable focus tracking on a terminal
+// represented by an io.Writer.  See
+// https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h3-FocusIn_FocusOut
+func WithFocus() Option {
+	return func(i *Input) error {
+		i.focus = true
 		return nil
 	}
 }

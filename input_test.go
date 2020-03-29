@@ -35,7 +35,7 @@ func TestInput_ReadKey_DefaultTinfo(t *testing.T) {
 		{"\x1b[1;2C", -1, KeyRight, ModShift},
 	}
 
-	input := NewInput(nil)
+	input, _ := NewInput()
 	for _, c := range cases {
 		runTestcase(t, c, input)
 	}
@@ -69,14 +69,14 @@ func TestInput_ReadKey_VT100Tinfo(t *testing.T) {
 		{"\x1bOD", -1, KeyLeft, ModNone},
 	}
 
-	input := NewInput(FromTerminfo(m))
+	input, _ := NewInput(WithESCSeq(FromTerminfo(m)))
 	for _, c := range cases {
 		runTestcase(t, c, input)
 	}
 }
 
 func TestInput_ReadKey_Bytes(t *testing.T) {
-	input := NewInput(make(map[string]string))
+	input, _ := NewInput(WithESCSeq(make(map[string]string)))
 
 	// before any read, Bytes returns nil
 	b := input.Bytes()
@@ -145,7 +145,7 @@ func BenchmarkInput_ReadKey(b *testing.B) {
 		"\x1b[B", "\x1b[1;2C",
 	}
 	for _, c := range cases {
-		input := NewInput(nil)
+		input, _ := NewInput()
 		b.Run(c, func(b *testing.B) {
 			r := strings.NewReader(c)
 			b.ResetTimer()
@@ -165,7 +165,7 @@ func BenchmarkInput_ReadKey(b *testing.B) {
 var BenchmarkBytes []byte
 
 func BenchmarkInput_ReadKey_Bytes(b *testing.B) {
-	input := NewInput(make(map[string]string))
+	input, _ := NewInput(WithESCSeq(make(map[string]string)))
 	data := "\x1baBc"
 	r := strings.NewReader(data)
 	b.ResetTimer()

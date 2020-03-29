@@ -61,9 +61,22 @@ var defaultEsc = map[string]Key{
 	"\x1b[1;2C":  keyFromTypeMod(KeyRight, ModShift),
 }
 
+func cloneEscMap(m map[string]Key) map[string]Key {
+	mm := make(map[string]Key)
+	for k, v := range m {
+		mm[k] = v
+	}
+	return mm
+}
+
+func addFocusESCSeq(m map[string]Key) {
+	m["\x1b[I"] = keyFromTypeMod(KeyFocusIn, ModNone)
+	m["\x1b[O"] = keyFromTypeMod(KeyFocusOut, ModNone)
+}
+
 func escFromTerminfo(tinfo map[string]string) map[string]Key {
 	if tinfo == nil {
-		return defaultEsc
+		return cloneEscMap(defaultEsc)
 	}
 
 	m := make(map[string]Key)

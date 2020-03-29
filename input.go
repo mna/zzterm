@@ -138,8 +138,12 @@ func NewInput(opts ...Option) (*Input, error) {
 		}
 	}
 	if i.esc == nil {
-		i.esc = defaultEsc
+		i.esc = cloneEscMap(defaultEsc)
 	}
+	if i.focus {
+		addFocusESCSeq(i.esc)
+	}
+
 	return i, nil
 }
 

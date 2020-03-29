@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"io/ioutil"
+	"log"
 	"strings"
 	"testing"
 )
@@ -75,6 +76,49 @@ func TestInput_ReadKey_VT100Tinfo(t *testing.T) {
 	}
 }
 
+func TestInput_ReadKey_Focus(t *testing.T) {
+	input, _ := NewInput(WithFocus())
+
+	in := "\x1b[I"
+	k, err := input.ReadKey(strings.NewReader(in))
+	if err != nil {
+		log.Fatal(err)
+	}
+	if k.Type() != KeyFocusIn || k.Mod() != ModNone {
+		t.Errorf("invalid modifier flags or key type: %s", k)
+	}
+
+	in = "\x1b[O"
+	k, err = input.ReadKey(strings.NewReader(in))
+	if err != nil {
+		log.Fatal(err)
+	}
+	if k.Type() != KeyFocusOut || k.Mod() != ModNone {
+		t.Errorf("invalid modifier flags or key type: %s", k)
+	}
+
+	// without focus decoding
+	input, _ = NewInput()
+
+	in = "\x1b[O"
+	k, err = input.ReadKey(strings.NewReader(in))
+	if err != nil {
+		log.Fatal(err)
+	}
+	if k.Type() != KeyESCSeq || k.Mod() != ModNone {
+		t.Errorf("invalid modifier flags or key type: %s", k)
+	}
+
+	in = "\x1b[I"
+	k, err = input.ReadKey(strings.NewReader(in))
+	if err != nil {
+		log.Fatal(err)
+	}
+	if k.Type() != KeyESCSeq || k.Mod() != ModNone {
+		t.Errorf("invalid modifier flags or key type: %s", k)
+	}
+}
+
 func TestInput_ReadKey_Bytes(t *testing.T) {
 	input, _ := NewInput(WithESCSeq(make(map[string]string)))
 
@@ -142,10 +186,10 @@ var BenchmarkKey Key
 func BenchmarkInput_ReadKey(b *testing.B) {
 	cases := []string{
 		"a", "B", "1", "\x00", "ø", "👪", "平",
-		"\x1b[B", "\x1b[1;2C",
+		"\x1b[B", "\x1b[1;2C", "\x1b[I",
 	}
 	for _, c := range cases {
-		input, _ := NewInput()
+		input, _ := NewInput(WithFocus())
 		b.Run(c, func(b *testing.B) {
 			r := strings.NewReader(c)
 			b.ResetTimer()

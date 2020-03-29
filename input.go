@@ -1,6 +1,7 @@
 package zzterm
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -12,8 +13,8 @@ type Input struct {
 	buf   []byte
 	lastn int
 	esc   map[string]Key
-	mouse MouseEventType // 0=no mouse event
-	focus bool           // false=no focus event
+	mouse bool
+	focus bool // only required to add the focus-related escape sequences in esc map
 }
 
 // Option defines the function signatures for options to apply when
@@ -102,9 +103,9 @@ func DisableFocus(w io.Writer) error {
 // Only X11 xterm mouse protocol in SGR mouse mode is supported. This should
 // be widely supported by any recent terminal with mouse support.  See
 // https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h2-Mouse-Tracking
-func WithMouse(eventType MouseEventType) Option {
+func WithMouse() Option {
 	return func(i *Input) error {
-		i.mouse = eventType
+		i.mouse = true
 		return nil
 	}
 }
@@ -156,6 +157,8 @@ func (i *Input) Bytes() []byte {
 	return i.buf[:i.lastn:i.lastn]
 }
 
+const sgrMouseEventPrefix = "\x1b[<"
+
 // ReadKey reads a key from r.
 func (i *Input) ReadKey(r io.Reader) (Key, error) {
 	i.lastn = 0
@@ -164,8 +167,9 @@ func (i *Input) ReadKey(r io.Reader) (Key, error) {
 		return 0, err
 	}
 	i.lastn = n
+	buf := i.buf[:n]
 
-	c, sz := utf8.DecodeRune(i.buf[:n])
+	c, sz := utf8.DecodeRune(buf)
 	if c == utf8.RuneError && sz < 2 {
 		return 0, errors.New("invalid rune")
 	}
@@ -178,10 +182,15 @@ func (i *Input) ReadKey(r io.Reader) (Key, error) {
 
 	// translate escape sequences
 	if KeyType(c) == KeyESC {
+		if i.mouse && bytes.HasPrefix(buf, []byte(sgrMouseEventPrefix)) {
+			if k := i.decodeMouseEvent(); k.Type() == KeyMouse {
+				return k, nil
+			}
+		}
 		// NOTE: important to use the string conversion exactly like that,
 		// inside the brackets of the map key - the Go compiler optimizes
 		// this to avoid any allocation.
-		if key, ok := i.esc[string(i.buf[:n])]; ok {
+		if key, ok := i.esc[string(buf)]; ok {
 			return key, nil
 		}
 		// if this is an unknown escape sequence, return KeyESCSeq and the
@@ -189,4 +198,88 @@ func (i *Input) ReadKey(r io.Reader) (Key, error) {
 		return keyFromTypeMod(KeyESCSeq, ModNone), nil
 	}
 	return Key(c), nil
+}
+
+// returns either a KeyMouse key, or a KeyESCSeq if it can't properly decode
+// the mouse event.
+func (i *Input) decodeMouseEvent() Key {
+	// the prefix has already been validated, strip it from the working buffer
+	buf := i.buf[len(sgrMouseEventPrefix):i.lastn]
+	if len(buf) < 6 {
+		// 2 semicolons, trailing m/M, at least one byte in each section
+		return keyFromTypeMod(KeyESCSeq, ModNone)
+	}
+
+	// the final character must be M (key press) or m (key release)
+	var btnRelease bool
+	switch buf[len(buf)-1] {
+	case 'M':
+	case 'm':
+		btnRelease = true
+	default:
+		return keyFromTypeMod(KeyESCSeq, ModNone)
+	}
+	buf = buf[:len(buf)-1]
+
+	var nums [3]uint16
+	for i := 0; i < 2; i++ {
+		// must have 3 semicolon-separated parts, so 2 semicolons
+		ix := bytes.IndexByte(buf, ';')
+		if ix < 0 {
+			return keyFromTypeMod(KeyESCSeq, ModNone)
+		}
+		num, err := parseUintBytes(buf[:ix])
+		if err != nil {
+			return keyFromTypeMod(KeyESCSeq, ModNone)
+		}
+		nums[i] = num
+		buf = buf[ix+1:]
+	}
+	// process the 3rd (remaining) number
+	num, err := parseUintBytes(buf)
+	if err != nil {
+		return keyFromTypeMod(KeyESCSeq, ModNone)
+	}
+	nums[2] = num
+
+	mod := Mod(nums[0]) & modMouseEvent
+	//fmt.Printf("%d - %d - %d (pressed? %t; modifier: %s)\r\n", nums[0], nums[1], nums[2], !btnRelease, mod)
+	_, _ = btnRelease, mod
+	return keyFromTypeMod(KeyMouse, ModNone)
+}
+
+var (
+	errInvalidUint = errors.New("invalid uint number")
+)
+
+// parse a uint16 number in base 10 from the provided bytes. If the value is
+// greater than maxUint16, it returns maxUint16 (not an error).
+func parseUintBytes(b []byte) (uint16, error) {
+	const (
+		maxUint16 = 1<<16 - 1
+	)
+
+	if len(b) == 0 {
+		return 0, errInvalidUint
+	}
+
+	var n uint32
+	for i := 0; i < len(b); i++ {
+		var v byte
+		d := b[i]
+		switch {
+		case '0' <= d && d <= '9':
+			v = d - '0'
+		default:
+			return 0, errInvalidUint
+		}
+
+		n *= 10
+		n += uint32(v)
+
+		if n > maxUint16 {
+			return maxUint16, nil
+		}
+	}
+	return uint16(n), nil
 }

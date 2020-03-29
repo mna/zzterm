@@ -186,10 +186,10 @@ var BenchmarkKey Key
 func BenchmarkInput_ReadKey(b *testing.B) {
 	cases := []string{
 		"a", "B", "1", "\x00", "ø", "👪", "平",
-		"\x1b[B", "\x1b[1;2C", "\x1b[I",
+		"\x1b[B", "\x1b[1;2C", "\x1b[I", "\x1b[<35;1;2M",
 	}
 	for _, c := range cases {
-		input, _ := NewInput(WithFocus())
+		input, _ := NewInput(WithFocus(), WithMouse())
 		b.Run(c, func(b *testing.B) {
 			r := strings.NewReader(c)
 			b.ResetTimer()

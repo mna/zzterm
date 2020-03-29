@@ -30,20 +30,7 @@ func (k Key) String() string {
 		return fmt.Sprintf("Key(%#U)", k.Rune())
 	}
 
-	var flags string
-	mod := k.Mod()
-	if mod&ModCtrl != 0 {
-		flags += "⌃"
-	}
-	if mod&ModShift != 0 {
-		flags += "⇧"
-	}
-	if mod&ModAlt != 0 {
-		flags += "⎇"
-	}
-	if mod&ModMeta != 0 {
-		flags += "⌥"
-	}
+	flags := k.Mod().String()
 	if flags != "" {
 		flags += " "
 	}
@@ -81,13 +68,36 @@ func (k Key) Mod() Mod {
 // Detection of such flags is limited.
 type Mod byte
 
-// List of modifier flags.
+// String returns the string representation of m.
+func (m Mod) String() string {
+	var flags string
+	if m&ModCtrl != 0 {
+		flags += "⌃"
+	}
+	if m&ModShift != 0 {
+		flags += "⇧"
+	}
+	if m&ModAlt != 0 {
+		flags += "⎇"
+	}
+	if m&ModMeta != 0 {
+		flags += "⌥"
+	}
+	return flags
+}
+
+// List of modifier flags. Values of Shift, Meta and Ctrl are the same
+// as for the xterm mouse tracking.
+// See https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h3-Normal-tracking-mode
 const (
-	ModShift Mod = 1 << iota
-	ModCtrl
-	ModAlt
-	ModMeta
-	ModNone Mod = 0
+	_        Mod = 1 << iota
+	ModAlt       // 2
+	ModShift     // 4
+	ModMeta      // 8
+	ModCtrl      // 16
+	ModNone  Mod = 0
+
+	modMouseEvent = ModShift | ModMeta | ModCtrl
 )
 
 // KeyType represents the type of key.

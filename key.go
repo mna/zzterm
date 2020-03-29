@@ -27,9 +27,27 @@ func keyFromTypeMod(t KeyType, m Mod) Key {
 // String returns the string representation of k.
 func (k Key) String() string {
 	if k.Type() == KeyRune {
-		return fmt.Sprintf("%q", string(k.Rune()))
+		return fmt.Sprintf("Key(%#U)", k.Rune())
 	}
-	return fmt.Sprintf("%0x", k.Type())
+
+	var flags string
+	mod := k.Mod()
+	if mod&ModCtrl != 0 {
+		flags += "⌃"
+	}
+	if mod&ModShift != 0 {
+		flags += "⇧"
+	}
+	if mod&ModAlt != 0 {
+		flags += "⎇"
+	}
+	if mod&ModMeta != 0 {
+		flags += "⌥"
+	}
+	if flags != "" {
+		flags += " "
+	}
+	return fmt.Sprintf("Key(%sx%02x)", flags, k.Type())
 }
 
 // Rune returns the rune corresponding to this key. It returns -1
@@ -192,4 +210,46 @@ const (
 	KeyPrint // 112
 
 	KeyDEL KeyType = 127
+)
+
+// List of some aliases to the key types. The KeyCtrl... constants
+// match the ASCII keys at the same position (e.g. KeyCtrlSpace is
+// KeyNUL, KeyCtrlLeftSq is KeyESC, etc.).
+const (
+	KeyCtrlSpace KeyType = iota
+	KeyCtrlA
+	KeyCtrlB
+	KeyCtrlC
+	KeyCtrlD
+	KeyCtrlE
+	KeyCtrlF
+	KeyCtrlG
+	KeyCtrlH
+	KeyCtrlI
+	KeyCtrlJ
+	KeyCtrlK
+	KeyCtrlL
+	KeyCtrlM
+	KeyCtrlN
+	KeyCtrlO
+	KeyCtrlP
+	KeyCtrlQ
+	KeyCtrlR
+	KeyCtrlS
+	KeyCtrlT
+	KeyCtrlU
+	KeyCtrlV
+	KeyCtrlW
+	KeyCtrlX
+	KeyCtrlY
+	KeyCtrlZ
+	KeyCtrlLeftSq
+	KeyCtrlBackslash
+	KeyCtrlRightSq
+	KeyCtrlCarat
+	KeyCtrlUnderscore
+
+	KeyBackspace = KeyBS
+	KeyEscape    = KeyESC
+	KeyEnter     = KeyCR
 )

@@ -119,6 +119,64 @@ func TestInput_ReadKey_Focus(t *testing.T) {
 	}
 }
 
+func TestInput_ReadKey_Mouse(t *testing.T) {
+	cases := []struct {
+		in      string
+		m       Mod
+		btn     int
+		pressed bool
+		x, y    int
+	}{
+		{"\x1b[<35;1;1M", ModNone, 0, true, 1, 1},
+		{"\x1b[<0;21;13m", ModNone, 1, false, 21, 13},
+		{"\x1b[<6;123;542M", ModShift, 3, true, 123, 542},
+		{"\x1b[<70;1;1m", ModShift, 6, false, 1, 1},
+		{"\x1b[<157;65536;65536m", ModShift | ModMeta | ModCtrl, 9, false, 65535, 65535},
+
+		// all button IDs
+		{"\x1b[<0;1;1m", ModNone, 1, false, 1, 1},
+		{"\x1b[<1;1;1m", ModNone, 2, false, 1, 1},
+		{"\x1b[<2;1;1m", ModNone, 3, false, 1, 1},
+		{"\x1b[<3;1;1m", ModNone, 0, false, 1, 1}, // AFAICT, this should never happen (no button should be value 35)
+		{"\x1b[<64;1;1m", ModNone, 4, false, 1, 1},
+		{"\x1b[<65;1;1m", ModNone, 5, false, 1, 1},
+		{"\x1b[<66;1;1m", ModNone, 6, false, 1, 1},
+		{"\x1b[<67;1;1m", ModNone, 7, false, 1, 1},
+		{"\x1b[<128;1;1m", ModNone, 8, false, 1, 1},
+		{"\x1b[<129;1;1m", ModNone, 9, false, 1, 1},
+		{"\x1b[<130;1;1m", ModNone, 10, false, 1, 1},
+		{"\x1b[<131;1;1m", ModNone, 11, false, 1, 1},
+		{"\x1b[<132;1;1m", ModShift, 8, false, 1, 1},
+	}
+
+	input, _ := NewInput(WithMouse())
+	for _, c := range cases {
+		t.Run(c.in, func(t *testing.T) {
+			k, err := input.ReadKey(strings.NewReader(c.in))
+			if err != nil {
+				t.Fatal(err)
+			}
+			if k.Type() != KeyMouse {
+				t.Fatalf("want key type %d, got %d", KeyMouse, k.Type())
+			}
+			if k.Mod() != c.m {
+				t.Fatalf("want modifier flags %04b, got %04b", c.m, k.Mod())
+			}
+
+			mouse := input.Mouse()
+			if mouse.ButtonID() != c.btn {
+				t.Errorf("want button %d, got %d", c.btn, mouse.ButtonID())
+			}
+			if mouse.ButtonPressed() != c.pressed {
+				t.Errorf("want pressed %t, got %t", c.pressed, mouse.ButtonPressed())
+			}
+			if x, y := mouse.Coords(); x != c.x || y != c.y {
+				t.Errorf("want %d, %d, got %d, %d", c.x, c.y, x, y)
+			}
+		})
+	}
+}
+
 func TestInput_ReadKey_Bytes(t *testing.T) {
 	input, _ := NewInput(WithESCSeq(make(map[string]string)))
 
@@ -221,6 +279,25 @@ func BenchmarkInput_ReadKey_Bytes(b *testing.B) {
 		}
 		BenchmarkKey = k
 		BenchmarkBytes = input.Bytes()
+		r.Reset(data)
+	}
+}
+
+var BenchmarkMouseEvent MouseEvent
+
+func BenchmarkInput_ReadKey_Mouse(b *testing.B) {
+	input, _ := NewInput(WithMouse())
+	data := "\x1b[<6;123;542M"
+	r := strings.NewReader(data)
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		k, err := input.ReadKey(r)
+		if err != nil {
+			b.Fatal(err)
+		}
+		BenchmarkKey = k
+		BenchmarkMouseEvent = input.Mouse()
 		r.Reset(data)
 	}
 }

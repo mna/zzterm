@@ -12,41 +12,12 @@ import (
 type Input struct {
 	buf   []byte
 	lastn int
+	lastm MouseEvent
+
+	// immutable after NewInput
 	esc   map[string]Key
 	mouse bool
 	focus bool // only required to add the focus-related escape sequences in esc map
-}
-
-// Option defines the function signatures for options to apply when
-// creating a new Input.
-type Option func(*Input) error
-
-// WithESCSeq sets the terminfo-like map that defines the interpretation of
-// escape sequences as special keys. The map has the same field names as those
-// used in the github.com/gdamore/tcell/terminfo package for the Terminfo
-// struct.  Only the fields starting with "Key" are supported, and only the key
-// sequences starting with ESC (0x1b) are considered.
-//
-// If nil is passed (or if the option is not specified), common default values
-// are used. To prevent any translation of escape sequences to special keys,
-// pass a non-nil empty map. All escape sequences will be returned as KeyESCSeq
-// and the raw bytes of the sequence can be retrieved by calling Input.Bytes.
-//
-// If you want to use tcell's terminfo definitions directly, you can use the
-// helper function FromTerminfo that accepts an interface{} and returns a
-// map[string]string that can be used here, in order to avoid adding tcell as a
-// dependency, and to support any value that marshals to JSON the same way as
-// tcell/terminfo. Note, however, that tcell manually patches some escape
-// sequences in its code, overriding the terminfo definitions in some cases. It
-// is up to the caller to ensure the mappings are correct, zzterm does not
-// apply any patching.
-//
-// See https://github.com/gdamore/tcell/blob/8ec73b6fa6c543d5d067722c0444b07f7607ba2f/tscreen.go#L337-L367
-func WithESCSeq(tinfo map[string]string) Option {
-	return func(i *Input) error {
-		i.esc = escFromTerminfo(tinfo)
-		return nil
-	}
 }
 
 // MouseEventType represents a type of mouse events.
@@ -92,13 +63,14 @@ func DisableFocus(w io.Writer) error {
 }
 
 // WithMouse enables mouse event reporting.  Such events will be reported as a
-// key with type KeyMouse. It is the responsibility of the caller to enable
-// mouse tracking for the terminal represented by the io.Reader passed to
-// ReadKey, and SGR Mouse Mode must be enabled. Not all tracking modes are
-// supported, see MouseEventType constants for supported modes. As a
-// convenience, the package provides the EnableMouse and DisableMouse
-// functions to enable and disable mouse tracking on a terminal represented by
-// an io.Writer.
+// key with type KeyMouse, and the mouse information can be retrieved by
+// calling Input.Mouse before the next call to Input.RedKey. It is the
+// responsibility of the caller to enable mouse tracking for the terminal
+// represented by the io.Reader passed to ReadKey, and SGR Mouse Mode must be
+// enabled. Not all tracking modes are supported, see MouseEventType constants
+// for supported modes. As a convenience, the package provides the EnableMouse
+// and DisableMouse functions to enable and disable mouse tracking on a
+// terminal represented by an io.Writer.
 //
 // Only X11 xterm mouse protocol in SGR mouse mode is supported. This should
 // be widely supported by any recent terminal with mouse support.  See
@@ -124,6 +96,38 @@ func WithFocus() Option {
 		return nil
 	}
 }
+
+// WithESCSeq sets the terminfo-like map that defines the interpretation of
+// escape sequences as special keys. The map has the same field names as those
+// used in the github.com/gdamore/tcell/terminfo package for the Terminfo
+// struct.  Only the fields starting with "Key" are supported, and only the key
+// sequences starting with ESC (0x1b) are considered.
+//
+// If nil is passed (or if the option is not specified), common default values
+// are used. To prevent any translation of escape sequences to special keys,
+// pass a non-nil empty map. All escape sequences will be returned as KeyESCSeq
+// and the raw bytes of the sequence can be retrieved by calling Input.Bytes.
+//
+// If you want to use tcell's terminfo definitions directly, you can use the
+// helper function FromTerminfo that accepts an interface{} and returns a
+// map[string]string that can be used here, in order to avoid adding tcell as a
+// dependency, and to support any value that marshals to JSON the same way as
+// tcell/terminfo. Note, however, that tcell manually patches some escape
+// sequences in its code, overriding the terminfo definitions in some cases. It
+// is up to the caller to ensure the mappings are correct, zzterm does not
+// apply any patching.
+//
+// See https://github.com/gdamore/tcell/blob/8ec73b6fa6c543d5d067722c0444b07f7607ba2f/tscreen.go#L337-L367
+func WithESCSeq(tinfo map[string]string) Option {
+	return func(i *Input) error {
+		i.esc = escFromTerminfo(tinfo)
+		return nil
+	}
+}
+
+// Option defines the function signatures for options to apply when
+// creating a new Input.
+type Option func(*Input) error
 
 // NewInput creates an Input ready to use. Call Input.ReadKey to read a single
 // key from an io.Reader - typically a terminal file descriptor set in raw mode.
@@ -155,6 +159,13 @@ func (i *Input) Bytes() []byte {
 		return nil
 	}
 	return i.buf[:i.lastn:i.lastn]
+}
+
+// Mouse returns the mouse event corresponding to the last key of type KeyMouse.
+// It should be called only after a key of type KeyMouse has been received from
+// ReadKey, and before any other call to ReadKey.
+func (i *Input) Mouse() MouseEvent {
+	return i.lastm
 }
 
 const sgrMouseEventPrefix = "\x1b[<"
@@ -211,16 +222,17 @@ func (i *Input) decodeMouseEvent() Key {
 	}
 
 	// the final character must be M (key press) or m (key release)
-	var btnRelease bool
+	var pressed bool
 	switch buf[len(buf)-1] {
 	case 'M':
+		pressed = true
 	case 'm':
-		btnRelease = true
 	default:
 		return keyFromTypeMod(KeyESCSeq, ModNone)
 	}
 	buf = buf[:len(buf)-1]
 
+	// extract the 3 parameter numbers
 	var nums [3]uint16
 	for i := 0; i < 2; i++ {
 		// must have 3 semicolon-separated parts, so 2 semicolons
@@ -242,10 +254,22 @@ func (i *Input) decodeMouseEvent() Key {
 	}
 	nums[2] = num
 
+	// decode the button event (first number)
 	mod := Mod(nums[0]) & modMouseEvent
+	btn := int(nums[0] & 0b_0000_0011) // this gives a number between 0-3, but 3 is not a button
+	add := int((nums[0] & 0b_1100_0000) >> 4)
+	btn += add // button is between 0-11
+	// detect if it is a mouse move only - i.e. no button pressed
+	if (btn == 0b_0011 && (nums[0]&0b_0010_0000 != 0)) || btn == 3 {
+		btn = 0
+	} else if btn < 3 {
+		btn++ // because 0-1-2 values are for IDs 1-2-3
+	}
+
+	i.lastm = MouseEvent{byte(btn), pressed, nums[1], nums[2]}
+
 	//fmt.Printf("%d - %d - %d (pressed? %t; modifier: %s)\r\n", nums[0], nums[1], nums[2], !btnRelease, mod)
-	_, _ = btnRelease, mod
-	return keyFromTypeMod(KeyMouse, ModNone)
+	return keyFromTypeMod(KeyMouse, mod)
 }
 
 var (

@@ -97,8 +97,38 @@ const (
 	ModCtrl      // 16
 	ModNone  Mod = 0
 
-	modMouseEvent = ModShift | ModMeta | ModCtrl
+	modMouseEvent = ModShift | ModMeta | ModCtrl // 0b_0001_1100
 )
+
+// MouseEvent describes a KeyMouse key type. While the Key returned
+// by Input.ReadKey has the modifier flags information, the mouse-related
+// properties are defined by the MouseEvent type.
+type MouseEvent struct {
+	buttonID byte
+	pressed  bool
+	x, y     uint16
+}
+
+// ButtonID returns the button pressed during the mouse event, starting
+// at 1. A ButtonID of 0 means that no button was pressed - i.e. this is
+// a mouse move event without any button pressed.
+func (m MouseEvent) ButtonID() int {
+	return int(m.buttonID)
+}
+
+// ButtonPressed returns true if the button identified by ButtonID was
+// pressed during the event. It returns false if instead it was released.
+// If ButtonID is 0 (no button for this mouse event), then ButtonPressed
+// returns true as this is how the xterm X11 mouse tracking reports it.
+func (m MouseEvent) ButtonPressed() bool {
+	return m.pressed
+}
+
+// Coords returns the screen coordinates of the mouse for this event.
+// The upper left character position on the terminal is denoted as 1,1.
+func (m MouseEvent) Coords() (x, y int) {
+	return int(m.x), int(m.y)
+}
 
 // KeyType represents the type of key.
 type KeyType byte

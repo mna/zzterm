@@ -114,12 +114,16 @@ type MouseEvent struct {
 
 // String returns the string representation of a mouse event.
 func (m MouseEvent) String() string {
-	state := "⇑"
-	if m.ButtonPressed() {
-		state = "⇓"
+	var btn string
+	if m.ButtonID() > 0 {
+		state := "⇑"
+		if m.ButtonPressed() {
+			state = "⇓"
+		}
+		btn = fmt.Sprintf("%s%02d ", state, m.ButtonID())
 	}
 	x, y := m.Coords()
-	return fmt.Sprintf("Mouse(%s%02d x:%d y:%d)", state, m.ButtonID(), x, y)
+	return fmt.Sprintf("Mouse(%sx:%d y:%d)", btn, x, y)
 }
 
 // ButtonID returns the button pressed during the mouse event, starting

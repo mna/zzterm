@@ -114,7 +114,8 @@ type MouseEvent struct {
 
 // ButtonID returns the button pressed during the mouse event, starting
 // at 1. A ButtonID of 0 means that no button was pressed - i.e. this is
-// a mouse move event without any button pressed.
+// a mouse move event without any button pressed. Up to 11 buttons are
+// supported by the X11 mouse protocol.
 func (m MouseEvent) ButtonID() int {
 	return int(m.buttonID)
 }

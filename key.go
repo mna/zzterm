@@ -112,6 +112,16 @@ type MouseEvent struct {
 	x, y     uint16
 }
 
+// String returns the string representation of a mouse event.
+func (m MouseEvent) String() string {
+	state := "⇑"
+	if m.ButtonPressed() {
+		state = "⇓"
+	}
+	x, y := m.Coords()
+	return fmt.Sprintf("Mouse(%s%02d x:%d y:%d)", state, m.ButtonID(), x, y)
+}
+
 // ButtonID returns the button pressed during the mouse event, starting
 // at 1. A ButtonID of 0 means that no button was pressed - i.e. this is
 // a mouse move event without any button pressed. Up to 11 buttons are

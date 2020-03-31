@@ -76,9 +76,8 @@ func DisableFocus(w io.Writer) error {
 // be widely supported by any recent terminal with mouse support.  See
 // https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h2-Mouse-Tracking
 func WithMouse() Option {
-	return func(i *Input) error {
+	return func(i *Input) {
 		i.mouse = true
-		return nil
 	}
 }
 
@@ -91,9 +90,8 @@ func WithMouse() Option {
 // represented by an io.Writer.  See
 // https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h3-FocusIn_FocusOut
 func WithFocus() Option {
-	return func(i *Input) error {
+	return func(i *Input) {
 		i.focus = true
-		return nil
 	}
 }
 
@@ -119,28 +117,25 @@ func WithFocus() Option {
 //
 // See https://github.com/gdamore/tcell/blob/8ec73b6fa6c543d5d067722c0444b07f7607ba2f/tscreen.go#L337-L367
 func WithESCSeq(tinfo map[string]string) Option {
-	return func(i *Input) error {
+	return func(i *Input) {
 		i.esc = escFromTerminfo(tinfo)
-		return nil
 	}
 }
 
 // Option defines the function signatures for options to apply when
 // creating a new Input.
-type Option func(*Input) error
+type Option func(*Input)
 
 // NewInput creates an Input ready to use. Call Input.ReadKey to read a single
 // key from an io.Reader - typically a terminal file descriptor set in raw mode.
 // The translation of escape sequences to special keys is controlled by the
 // WithESCSeq option.
-func NewInput(opts ...Option) (*Input, error) {
+func NewInput(opts ...Option) *Input {
 	i := &Input{
 		buf: make([]byte, 128),
 	}
 	for _, o := range opts {
-		if err := o(i); err != nil {
-			return nil, err
-		}
+		o(i)
 	}
 	if i.esc == nil {
 		i.esc = cloneEscMap(defaultEsc)
@@ -149,7 +144,7 @@ func NewInput(opts ...Option) (*Input, error) {
 		addFocusESCSeq(i.esc)
 	}
 
-	return i, nil
+	return i
 }
 
 // Bytes returns the uninterpreted bytes from the last key read. The bytes

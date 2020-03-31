@@ -36,7 +36,7 @@ func TestInput_ReadKey_DefaultTinfo(t *testing.T) {
 		{"\x1b[1;2C", -1, KeyRight, ModShift},
 	}
 
-	input, _ := NewInput()
+	input := NewInput()
 	for _, c := range cases {
 		runTestcase(t, c, input)
 	}
@@ -70,14 +70,14 @@ func TestInput_ReadKey_VT100Tinfo(t *testing.T) {
 		{"\x1bOD", -1, KeyLeft, ModNone},
 	}
 
-	input, _ := NewInput(WithESCSeq(FromTerminfo(m)))
+	input := NewInput(WithESCSeq(FromTerminfo(m)))
 	for _, c := range cases {
 		runTestcase(t, c, input)
 	}
 }
 
 func TestInput_ReadKey_Focus(t *testing.T) {
-	input, _ := NewInput(WithFocus())
+	input := NewInput(WithFocus())
 
 	in := "\x1b[I"
 	k, err := input.ReadKey(strings.NewReader(in))
@@ -98,7 +98,7 @@ func TestInput_ReadKey_Focus(t *testing.T) {
 	}
 
 	// without focus decoding
-	input, _ = NewInput()
+	input = NewInput()
 
 	in = "\x1b[O"
 	k, err = input.ReadKey(strings.NewReader(in))
@@ -149,7 +149,7 @@ func TestInput_ReadKey_Mouse(t *testing.T) {
 		{"\x1b[<132;1;1m", ModShift, 8, false, 1, 1},
 	}
 
-	input, _ := NewInput(WithMouse())
+	input := NewInput(WithMouse())
 	for _, c := range cases {
 		t.Run(c.in, func(t *testing.T) {
 			k, err := input.ReadKey(strings.NewReader(c.in))
@@ -178,7 +178,7 @@ func TestInput_ReadKey_Mouse(t *testing.T) {
 }
 
 func TestInput_ReadKey_Bytes(t *testing.T) {
-	input, _ := NewInput(WithESCSeq(make(map[string]string)))
+	input := NewInput(WithESCSeq(make(map[string]string)))
 
 	// before any read, Bytes returns nil
 	b := input.Bytes()
@@ -247,7 +247,7 @@ func BenchmarkInput_ReadKey(b *testing.B) {
 		"\x1b[B", "\x1b[1;2C", "\x1b[I", "\x1b[<35;1;2M",
 	}
 	for _, c := range cases {
-		input, _ := NewInput(WithFocus(), WithMouse())
+		input := NewInput(WithFocus(), WithMouse())
 		b.Run(c, func(b *testing.B) {
 			r := strings.NewReader(c)
 			b.ResetTimer()
@@ -267,7 +267,7 @@ func BenchmarkInput_ReadKey(b *testing.B) {
 var BenchmarkBytes []byte
 
 func BenchmarkInput_ReadKey_Bytes(b *testing.B) {
-	input, _ := NewInput(WithESCSeq(make(map[string]string)))
+	input := NewInput(WithESCSeq(make(map[string]string)))
 	data := "\x1baBc"
 	r := strings.NewReader(data)
 	b.ResetTimer()
@@ -286,7 +286,7 @@ func BenchmarkInput_ReadKey_Bytes(b *testing.B) {
 var BenchmarkMouseEvent MouseEvent
 
 func BenchmarkInput_ReadKey_Mouse(b *testing.B) {
-	input, _ := NewInput(WithMouse())
+	input := NewInput(WithMouse())
 	data := "\x1b[<6;123;542M"
 	r := strings.NewReader(data)
 	b.ResetTimer()

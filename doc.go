@@ -19,15 +19,15 @@
 //
 //        input := zzterm.NewInput()
 //        for {
-//        	   k, err := input.ReadKey(t)
-//        	   if err != nil {
+//        	  k, err := input.ReadKey(t)
+//        	  if err != nil {
 //                log.Panic(err)
-//        	   }
+//        	  }
 //
-//        	   switch k.Type() {
-//        	   case zzterm.KeyRune:
+//        	  switch k.Type() {
+//        	  case zzterm.KeyRune:
 //                // k.Rune() returns the rune
-//        	   case zzterm.KeyESC, zzterm.KeyCtrlC:
+//        	  case zzterm.KeyESC, zzterm.KeyCtrlC:
 //                // quit on ESC or Ctrl-C
 //                return
 //            }
@@ -60,6 +60,7 @@
 //    // they would be reported as uninterpreted KeyESCSeq (escape sequence).
 //    input := zzterm.NewInput(zzterm.WithMouse())
 //    for {
+//        // ...
 //        switch k.Type() {
 //        case zzterm.KeyRune:
 //            // k.Rune() returns the rune
@@ -80,9 +81,12 @@
 //    input := zzterm.NewInput(zzterm.WithMouse(), zzterm.WithFocus())
 //    for {
 //        // ...
+//        switch k.Type() {
+//        // ...
 //        case zzterm.KeyFocusIn, zzterm.KeyFocusOut:
 //            // terminal has gained/lost focus
 //        // ...
+//        }
 //    }
 //
 // Terminfo

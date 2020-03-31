@@ -6,6 +6,9 @@
 //
 // Basic usage
 //
+// Set the terminal in raw mode, use NewInput to create the input key reader
+// and read from the terminal:
+//
 //     func main() {
 //         // set the terminal in raw mode, e.g. with github.com/pkg/term
 //         t, err := term.Open("/dev/tty", term.RawMode)

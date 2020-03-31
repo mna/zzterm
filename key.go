@@ -1,6 +1,9 @@
 package zzterm
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+)
 
 // Key represents a single key. It contains the key type,
 // the key modifier flags and the rune itself in a compact
@@ -34,7 +37,7 @@ func (k Key) String() string {
 	if flags != "" {
 		flags += " "
 	}
-	return fmt.Sprintf("Key(%sx%02x)", flags, k.Type())
+	return fmt.Sprintf("Key(%s%s)", flags, k.Type())
 }
 
 // Rune returns the rune corresponding to this key. It returns -1
@@ -132,6 +135,14 @@ func (m MouseEvent) Coords() (x, y int) {
 
 // KeyType represents the type of key.
 type KeyType byte
+
+// String returns the string representation of the key type.
+func (k KeyType) String() string {
+	if int(k) < len(keyNames) && keyNames[k] != "" {
+		return keyNames[k]
+	}
+	return strconv.Itoa(int(k))
+}
 
 // List of supported key types.
 const (
@@ -297,3 +308,123 @@ const (
 	KeyEscape    = KeyESC
 	KeyEnter     = KeyCR
 )
+
+var keyNames = [...]string{
+	KeyNUL:      "NUL",
+	KeySOH:      "SOH",
+	KeySTX:      "STX",
+	KeyETX:      "ETX",
+	KeyEOT:      "EOT",
+	KeyENQ:      "ENQ",
+	KeyACK:      "ACK",
+	KeyBEL:      "BEL",
+	KeyBS:       "BS",
+	KeyTAB:      "TAB",
+	KeyLF:       "LF",
+	KeyVT:       "VT",
+	KeyFF:       "FF",
+	KeyCR:       "CR",
+	KeySO:       "SO",
+	KeySI:       "SI",
+	KeyDLE:      "DLE",
+	KeyDC1:      "DC1",
+	KeyDC2:      "DC2",
+	KeyDC3:      "DC3",
+	KeyDC4:      "DC4",
+	KeyNAK:      "NAK",
+	KeySYN:      "SYN",
+	KeyETB:      "ETB",
+	KeyCAN:      "CAN",
+	KeyEM:       "EM",
+	KeySUB:      "SUB",
+	KeyESC:      "ESC",
+	KeyFS:       "FS",
+	KeyGS:       "GS",
+	KeyRS:       "RS",
+	KeyUS:       "US",
+	KeyLeft:     "Left",
+	KeyRight:    "Right",
+	KeyUp:       "Up",
+	KeyDown:     "Down",
+	KeyInsert:   "Insert",
+	KeyBacktab:  "Backtab",
+	KeyDelete:   "Delete",
+	KeyHome:     "Home",
+	KeyEnd:      "End",
+	KeyPgUp:     "PgUp",
+	KeyPgDn:     "PgDn",
+	KeyF1:       "F1",
+	KeyF2:       "F1",
+	KeyF3:       "F1",
+	KeyF4:       "F1",
+	KeyF5:       "F1",
+	KeyF6:       "F1",
+	KeyF7:       "F1",
+	KeyF8:       "F1",
+	KeyF9:       "F1",
+	KeyF10:      "F1",
+	KeyF11:      "F1",
+	KeyF12:      "F1",
+	KeyF13:      "F1",
+	KeyF14:      "F1",
+	KeyF15:      "F1",
+	KeyF16:      "F1",
+	KeyF17:      "F1",
+	KeyF18:      "F1",
+	KeyF19:      "F1",
+	KeyF20:      "F1",
+	KeyF21:      "F1",
+	KeyF22:      "F1",
+	KeyF23:      "F1",
+	KeyF24:      "F1",
+	KeyF25:      "F1",
+	KeyF26:      "F1",
+	KeyF27:      "F1",
+	KeyF28:      "F1",
+	KeyF29:      "F1",
+	KeyF30:      "F1",
+	KeyF31:      "F1",
+	KeyF32:      "F1",
+	KeyF33:      "F1",
+	KeyF34:      "F1",
+	KeyF35:      "F1",
+	KeyF36:      "F1",
+	KeyF37:      "F1",
+	KeyF38:      "F1",
+	KeyF39:      "F1",
+	KeyF40:      "F1",
+	KeyF41:      "F1",
+	KeyF42:      "F1",
+	KeyF43:      "F1",
+	KeyF44:      "F1",
+	KeyF45:      "F1",
+	KeyF46:      "F1",
+	KeyF47:      "F1",
+	KeyF48:      "F1",
+	KeyF49:      "F1",
+	KeyF50:      "F1",
+	KeyF51:      "F1",
+	KeyF52:      "F1",
+	KeyF53:      "F1",
+	KeyF54:      "F1",
+	KeyF55:      "F1",
+	KeyF56:      "F1",
+	KeyF57:      "F1",
+	KeyF58:      "F1",
+	KeyF59:      "F1",
+	KeyF60:      "F1",
+	KeyF61:      "F1",
+	KeyF62:      "F1",
+	KeyF63:      "F1",
+	KeyF64:      "F1",
+	KeyHelp:     "Help",
+	KeyExit:     "Exit",
+	KeyClear:    "Clear",
+	KeyCancel:   "Cancel",
+	KeyPrint:    "Print",
+	KeyESCSeq:   "ESCSeq",
+	KeyMouse:    "Mouse",
+	KeyFocusIn:  "FocusIn",
+	KeyFocusOut: "FocusOut",
+	KeyDEL:      "DEL",
+}

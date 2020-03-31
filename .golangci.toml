@@ -29,5 +29,6 @@
   exclude = [
     "`Benchmark.+` is a global variable",
     "`defaultEsc` is a global variable",
+    "`keyNames` is a global variable",
   ]
 

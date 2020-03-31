@@ -7,15 +7,15 @@ func TestKey_String(t *testing.T) {
 		key Key
 		out string
 	}{
-		{keyFromTypeMod(KeyNUL, ModNone), `Key(x00)`},
-		{keyFromTypeMod(KeyESC, ModNone), `Key(x1b)`},
-		{keyFromTypeMod(KeyUp, ModShift), `Key(⇧ x23)`},
+		{keyFromTypeMod(KeyNUL, ModNone), `Key(NUL)`},
+		{keyFromTypeMod(KeyESC, ModNone), `Key(ESC)`},
+		{keyFromTypeMod(KeyUp, ModShift), `Key(⇧ Up)`},
 		{Key('a'), `Key(U+0061 'a')`},
 		{Key('👪'), `Key(U+1F46A '👪')`},
 		{Key('\u202f'), `Key(U+202F)`},
-		{keyFromTypeMod(KeyHome, ModCtrl|ModShift), `Key(⌃⇧ x28)`},
-		{keyFromTypeMod(KeyLeft, ModAlt), `Key(⎇ x21)`},
-		{keyFromTypeMod(KeyLeft, ModMeta), `Key(⌥ x21)`},
+		{keyFromTypeMod(KeyHome, ModCtrl|ModShift), `Key(⌃⇧ Home)`},
+		{keyFromTypeMod(KeyLeft, ModAlt), `Key(⎇ Left)`},
+		{keyFromTypeMod(KeyLeft, ModMeta), `Key(⌥ Left)`},
 	}
 	for _, c := range cases {
 		t.Run(c.key.String(), func(t *testing.T) {

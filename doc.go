@@ -9,30 +9,30 @@
 // Set the terminal in raw mode, use NewInput to create the input key reader
 // and read from the terminal:
 //
-//     func main() {
-//         // set the terminal in raw mode, e.g. with github.com/pkg/term
-//         t, err := term.Open("/dev/tty", term.RawMode)
-//         if err != nil {
-//             log.Panic(err)
-//         }
-//         defer t.Restore()
+//    func main() {
+//        // set the terminal in raw mode, e.g. with github.com/pkg/term
+//        t, err := term.Open("/dev/tty", term.RawMode)
+//        if err != nil {
+//            log.Panic(err)
+//        }
+//        defer t.Restore()
 //
-//         input := zzterm.NewInput()
-//         for {
-//         	   k, err := input.ReadKey(t)
-//         	   if err != nil {
-//                 log.Panic(err)
-//         	   }
+//        input := zzterm.NewInput()
+//        for {
+//        	   k, err := input.ReadKey(t)
+//        	   if err != nil {
+//                log.Panic(err)
+//        	   }
 //
-//         	   switch k.Type() {
-//         	   case zzterm.KeyRune:
-//                 // k.Rune() returns the rune
-//         	   case zzterm.KeyESC, zzterm.KeyCtrlC:
-//                 // quit on ESC or Ctrl-C
-//                 return
-//             }
-//         }
-//     }
+//        	   switch k.Type() {
+//        	   case zzterm.KeyRune:
+//                // k.Rune() returns the rune
+//        	   case zzterm.KeyESC, zzterm.KeyCtrlC:
+//                // quit on ESC or Ctrl-C
+//                return
+//            }
+//        }
+//    }
 //
 // Mouse and focus events
 //
@@ -45,45 +45,45 @@
 // mode) before using Input.ReadKey, but as a convenience zzterm provides the
 // EnableMouse and DisableMouse functions:
 //
-//     t, err := term.Open("/dev/tty", term.RawMode)
-//     // ...
-//     defer t.Restore()
+//    t, err := term.Open("/dev/tty", term.RawMode)
+//    // ...
+//    defer t.Restore()
 //
-//     // Mouse events can be enabled only to report button presses (zzterm.MouseButton)
-//     // or any mouse event (including mouse moves, zzterm.MouseAny).
-//     zzterm.EnableMouse(t, zzterm.MouseAny)
-//     defer zzterm.DisableMouse(t, zzterm.MouseAny)
+//    // Mouse events can be enabled only to report button presses (zzterm.MouseButton)
+//    // or any mouse event (including mouse moves, zzterm.MouseAny).
+//    zzterm.EnableMouse(t, zzterm.MouseAny)
+//    defer zzterm.DisableMouse(t, zzterm.MouseAny)
 //
 // And then mouse events will be reported (if supported by the terminal):
 //
-//     // The WithMouse option must be set to decode the mouse events, otherwise
-//     // they would be reported as uninterpreted KeyESCSeq (escape sequence).
-//     input := zzterm.NewInput(zzterm.WithMouse())
-//     for {
-//         switch k.Type() {
-//         case zzterm.KeyRune:
-//             // k.Rune() returns the rune
-//         case zzterm.KeyMouse:
-//             // k.Mod() returns the modifier flags (e.g. Shift) pressed during the event
-//             // input.Mouse() returns the mouse information, coordinates 1,1 is top-left
-//         // ...
-//         }
-//     }
+//    // The WithMouse option must be set to decode the mouse events, otherwise
+//    // they would be reported as uninterpreted KeyESCSeq (escape sequence).
+//    input := zzterm.NewInput(zzterm.WithMouse())
+//    for {
+//        switch k.Type() {
+//        case zzterm.KeyRune:
+//            // k.Rune() returns the rune
+//        case zzterm.KeyMouse:
+//            // k.Mod() returns the modifier flags (e.g. Shift) pressed during the event
+//            // input.Mouse() returns the mouse information, coordinates 1,1 is top-left
+//        // ...
+//        }
+//    }
 //
 // It works similarly to enable reporting focus in/out of the terminal:
 //
-//     zzterm.EnableFocus(t)
-//     defer zzterm.DisableFocus(t)
+//    zzterm.EnableFocus(t)
+//    defer zzterm.DisableFocus(t)
 //
-//     // The WithFocus option must be set to decode the focus events, otherwise
-//     // they would be reported as uninterpreted KeyESCSeq (escape sequence).
-//     input := zzterm.NewInput(zzterm.WithMouse(), zzterm.WithFocus())
-//     for {
-//         // ...
-//         case zzterm.KeyFocusIn, zzterm.KeyFocusOut:
-//             // terminal has gained/lost focus
-//         // ...
-//     }
+//    // The WithFocus option must be set to decode the focus events, otherwise
+//    // they would be reported as uninterpreted KeyESCSeq (escape sequence).
+//    input := zzterm.NewInput(zzterm.WithMouse(), zzterm.WithFocus())
+//    for {
+//        // ...
+//        case zzterm.KeyFocusIn, zzterm.KeyFocusOut:
+//            // terminal has gained/lost focus
+//        // ...
+//    }
 //
 // Terminfo
 //
@@ -94,8 +94,8 @@
 // the key is the name of the special key and the value is the escape sequence that
 // should map to this key.
 //
-//     escSeq := map[string]string{"KeyDown": "\x1b[B"}
-//     input := zzterm.NewInput(zzterm.WithESCSeq(escSeq))
+//    escSeq := map[string]string{"KeyDown": "\x1b[B"}
+//    input := zzterm.NewInput(zzterm.WithESCSeq(escSeq))
 //
 // The github.com/gdamore/tcell repository has a good number of terminal configurations
 // described in a Go struct and accessible via terminfo.LookupTermInfo [2]. To enable
@@ -103,9 +103,9 @@
 // structs to the supported map format. It is the responsibility of the caller to
 // detect the right terminfo to use for the terminal.
 //
-//     ti, err := terminfo.LookupTerminfo("termite")
-//     // handle error
-//     input := zzterm.NewInput(zzterm.WithESCSeq(zzterm.FromTerminfo(ti)))
+//    ti, err := terminfo.LookupTerminfo("termite")
+//    // handle error
+//    input := zzterm.NewInput(zzterm.WithESCSeq(zzterm.FromTerminfo(ti)))
 //
 // Note, however, that the tcell package patches those terminfo descriptions before use
 // due to some inconsistencies in behaviour - using the raw terminfo definitions may
@@ -117,8 +117,8 @@
 // such sequences will be read as keys of type KeyESCSeq. The input.Bytes method can
 // then be called to inspect the raw bytes of the sequence.
 //
-// [1]: https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h2-Mouse-Tracking
-// [2]: https://godoc.org/github.com/gdamore/tcell/terminfo#LookupTerminfo
-// [3]: https://github.com/gdamore/tcell/blob/8ec73b6fa6c543d5d067722c0444b07f7607ba2f/tscreen.go#L337-L367
+//    [1]: https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h2-Mouse-Tracking
+//    [2]: https://godoc.org/github.com/gdamore/tcell/terminfo#LookupTerminfo
+//    [3]: https://github.com/gdamore/tcell/blob/8ec73b6fa6c543d5d067722c0444b07f7607ba2f/tscreen.go#L337-L367
 //
 package zzterm // import "git.sr.ht/~mna/zzterm"

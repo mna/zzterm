@@ -5,6 +5,10 @@ without any memory allocation. It is intended to be used with a terminal set in
 raw mode as its `io.Reader`. See the [package documentation][godoc] for details,
 API reference and usage example (alternatively, on [pkg.go.dev][pgd]).
 
+You can also check out [zztermtest][zztt] for more usage examples and how to
+efficiently print output to an `io.Writer` (with a zero-allocation "echo"
+program example).
+
 * Canonical repository: https://git.sr.ht/~mna/zzterm
 * Issues: https://todo.sr.ht/~mna/zzterm
 * Builds: https://builds.sr.ht/~mna/zzterm
@@ -54,3 +58,4 @@ The [BSD 3-Clause license][bsd].
 [bsd]: http://opensource.org/licenses/BSD-3-Clause
 [godoc]: http://godoc.org/git.sr.ht/~mna/zzterm
 [pgd]: https://pkg.go.dev/git.sr.ht/~mna/zzterm
+[zztt]: https://git.sr.ht/~mna/zztermtest

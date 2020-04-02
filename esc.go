@@ -38,7 +38,7 @@ var defaultEsc = map[string]Key{
 	"\x1b[5~":    keyFromTypeMod(KeyPgUp, ModNone),
 	"\x1b[6~":    keyFromTypeMod(KeyPgDn, ModNone),
 	"\x1bOP":     keyFromTypeMod(KeyF1, ModNone),
-	"\x1bOQ":     keyFromTypeMod(KeyF1, ModNone),
+	"\x1bOQ":     keyFromTypeMod(KeyF2, ModNone),
 	"\x1bOR":     keyFromTypeMod(KeyF3, ModNone),
 	"\x1bOS":     keyFromTypeMod(KeyF4, ModNone),
 	"\x1b[15~":   keyFromTypeMod(KeyF5, ModNone),

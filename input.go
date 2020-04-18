@@ -167,6 +167,10 @@ const sgrMouseEventPrefix = "\x1b[<"
 
 // ReadKey reads a key from r.
 func (i *Input) ReadKey(r io.Reader) (Key, error) {
+	// TODO: check if r implements SetReadTimeout, if so retry when the read is not
+	// a complete rune or is an unknown esc seq. Also, if more bytes were read, keep
+	// them to decode the next key. Test with a slow input (e.g. with sendkeys).
+
 	i.lastn = 0
 	n, err := r.Read(i.buf)
 	if err != nil || n == 0 {

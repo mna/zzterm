@@ -167,13 +167,18 @@ const sgrMouseEventPrefix = "\x1b[<"
 
 // ReadKey reads a key from r.
 func (i *Input) ReadKey(r io.Reader) (Key, error) {
-	// TODO: check if r implements SetReadTimeout, if so retry when the read is not
-	// a complete rune or is an unknown esc seq. Also, if more bytes were read, keep
-	// them to decode the next key. Test with a slow input (e.g. with sendkeys).
 
-	i.lastn = 0
+	// TODO: first, check if i.lastn > 0 and i.rd < i.lastn. If so, there
+	// are more keys to decode from the buffer, try to get a rune from it.
+	// If there is no valid rune from the buffer, then do a Read, using
+	// the buffer after i.lastn. If the read times out, return invalid
+	// rune error, not timeout, and consume that invalid rune byte(s).
+
+	i.lastn = 0 // TODO: and i.rd = 0
 	n, err := r.Read(i.buf)
 	if err != nil || n == 0 {
+		// TODO: if n == 0 and (err == nil || err == io.EOF || err.Timeout() == true)
+		// return ErrTimeout (wrapping the original error and implementing Timeout() bool).
 		return 0, err
 	}
 	i.lastn = n
@@ -181,8 +186,10 @@ func (i *Input) ReadKey(r io.Reader) (Key, error) {
 
 	c, sz := utf8.DecodeRune(buf)
 	if c == utf8.RuneError && sz < 2 {
+		// TODO: i.rd++, always consume at least one byte
 		return 0, errors.New("invalid rune")
 	}
+	// TODO: i.rd = sz
 
 	// if c is a control character (if n == 1 so that if an escape
 	// sequence is read, it does not return immediately with just ESC)
@@ -194,6 +201,7 @@ func (i *Input) ReadKey(r io.Reader) (Key, error) {
 	if KeyType(c) == KeyESC {
 		if i.mouse && bytes.HasPrefix(buf, []byte(sgrMouseEventPrefix)) {
 			if k := i.decodeMouseEvent(); k.Type() == KeyMouse {
+				// TODO: i.rd = i.lastn, reset with a fresh read on next key
 				return k, nil
 			}
 		}
@@ -201,10 +209,12 @@ func (i *Input) ReadKey(r io.Reader) (Key, error) {
 		// inside the brackets of the map key - the Go compiler optimizes
 		// this to avoid any allocation.
 		if key, ok := i.esc[string(buf)]; ok {
+			// TODO: i.rd = i.lastn, reset with a fresh read on next key
 			return key, nil
 		}
 		// if this is an unknown escape sequence, return KeyESCSeq and the
 		// caller may get the uninterpreted sequence from i.Bytes.
+		// TODO: i.rd = i.lastn, reset with a fresh read on next key
 		return keyFromTypeMod(KeyESCSeq, ModNone), nil
 	}
 	return Key(c), nil

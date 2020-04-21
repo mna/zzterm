@@ -3,11 +3,99 @@ package zzterm
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
+	"io"
 	"io/ioutil"
 	"log"
+	"os"
 	"strings"
 	"testing"
 )
+
+func TestInput_ReadKey_Multiple(t *testing.T) {
+	invalidRuneKey := Key('\x01')
+
+	cases := []struct {
+		in    string
+		keys  []Key
+		bytes []string
+	}{
+		{"", nil, nil},
+		{"a", []Key{Key('a')}, []string{"a"}},
+		{"ab", []Key{Key('a'), Key('b')}, []string{"a", "b"}},
+		{"\xff", []Key{invalidRuneKey}, []string{"\xff"}},
+		{"\xffa", []Key{invalidRuneKey, Key('a')}, []string{"\xff", "a"}},
+		{"😿\x1b[abc", []Key{Key('😿'), keyFromTypeMod(KeyESCSeq, ModNone)}, []string{"😿", "\x1b[abc"}},
+	}
+
+	input := NewInput(WithMouse(), WithFocus())
+	for _, c := range cases {
+		t.Run(c.in, func(t *testing.T) {
+			r := strings.NewReader(c.in)
+			for i, wantk := range c.keys {
+				wantb := c.bytes[i]
+				got, err := input.ReadKey(r)
+				if wantk == invalidRuneKey {
+					if err.Error() != "invalid rune" {
+						t.Fatalf("[%d]: want invalid rune, got %v", i, err)
+					}
+					wantk = Key(0)
+				} else if err != nil {
+					t.Fatalf("[%d]: want %s, got error %v", i, wantk, err)
+				}
+
+				if got.Type() != wantk.Type() {
+					t.Fatalf("[%d]: want key type %s, got %s", i, wantk.Type(), got.Type())
+				}
+				if gotb := string(input.Bytes()); gotb != wantb {
+					t.Fatalf("[%d]: want bytes %q, got %q", i, wantb, gotb)
+				}
+			}
+
+			// after the loop, must return a "timeout" error (via EOF)
+			got, err := input.ReadKey(r)
+			if !errors.As(err, &TimeoutError{}) {
+				t.Fatalf("after loop: want TimeoutError, got %v (key %v)", err, got)
+			}
+			if err := errors.Unwrap(err); err != io.EOF {
+				t.Fatalf("after loop: want TimeoutError to wrap io.EOF, got %v", err)
+			}
+			if !os.IsTimeout(err) {
+				t.Fatal("after loop: want TimeoutError to be identified as such with os.IsTimeout")
+			}
+		})
+	}
+}
+
+func TestInput_ReadKey_BustBuffer(t *testing.T) {
+	// this '⬼ ' character is 3 bytes in utf-8, so it ends up crossing
+	// over the buffer size (which is an even number). This tests that
+	// ReadKey properly tries a Read to get more bytes when it only
+	// has an invalid rune to work with.
+	want, wantn := "\xE2\xAC\xBC", 100
+	r := strings.NewReader(strings.Repeat(want, wantn))
+	input := NewInput()
+	var count int
+	for {
+		key, err := input.ReadKey(r)
+		if errors.Is(err, io.EOF) {
+			break
+		}
+		if err != nil {
+			t.Fatal(err)
+		}
+		count++
+		if got := string(input.Bytes()); got != want {
+			t.Fatalf("[%d]: got bytes %q", count, got)
+		}
+		if key.Type() != KeyRune || key.Rune() != '⬼' {
+			t.Fatalf("[%d]: unexpected key %v", count, key)
+		}
+	}
+	if count != 100 {
+		t.Fatalf("want %d keys, got %d", wantn, count)
+	}
+}
 
 type testcase struct {
 	in  string
@@ -298,6 +386,27 @@ func BenchmarkInput_ReadKey_Mouse(b *testing.B) {
 		}
 		BenchmarkKey = k
 		BenchmarkMouseEvent = input.Mouse()
+		r.Reset(data)
+	}
+}
+
+func BenchmarkInput_ReadKey_Multiple(b *testing.B) {
+	input := NewInput(WithMouse())
+	data := "a⬼\x1b[<6;123;542M"
+	r := strings.NewReader(data)
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		var count int
+		for j := 0; j < 3; j++ {
+			if _, err := input.ReadKey(r); err != nil {
+				b.Fatal(err)
+			}
+			count++
+		}
+		if count != 3 {
+			b.Fatalf("want 3 keys, got %d", count)
+		}
 		r.Reset(data)
 	}
 }

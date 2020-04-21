@@ -8,10 +8,35 @@ import (
 	"unicode/utf8"
 )
 
+// TimeoutError is the type of the error returned when ReadKey fails
+// to return a key due to the read timeout expiring. If the underlying
+// Read call returned an error, this error wraps it and it can be
+// unwrapped with errors.Unwrap.
+type TimeoutError struct {
+	err error
+}
+
+// Error returns the error message for the TimeoutError.
+func (e TimeoutError) Error() string {
+	return "zzterm: timeout"
+}
+
+// Unwrap returns a non-nil error if TimeoutError wraps an underlying
+// error returned by Read.
+func (e TimeoutError) Unwrap() error {
+	return e.err
+}
+
+// Timeout returns true.
+func (e TimeoutError) Timeout() bool {
+	return true
+}
+
 // Input reads input keys from a reader and returns the key pressed.
 type Input struct {
 	buf   []byte
-	lastn int
+	sz    int // size of the last key
+	len   int // len of bytes loaded in the buffer
 	lastm MouseEvent
 
 	// immutable after NewInput
@@ -150,10 +175,10 @@ func NewInput(opts ...Option) *Input {
 // Bytes returns the uninterpreted bytes from the last key read. The bytes
 // are valid only until the next call to ReadKey and should not be modified.
 func (i *Input) Bytes() []byte {
-	if i.lastn <= 0 {
+	if i.sz <= 0 {
 		return nil
 	}
-	return i.buf[:i.lastn:i.lastn]
+	return i.buf[:i.sz:i.sz]
 }
 
 // Mouse returns the mouse event corresponding to the last key of type KeyMouse.
@@ -165,66 +190,98 @@ func (i *Input) Mouse() MouseEvent {
 
 const sgrMouseEventPrefix = "\x1b[<"
 
-// ReadKey reads a key from r.
+// ReadKey reads a key from r which should be the reader of a terminal set in raw
+// mode. It is recommended to set a read timeout on the raw terminal so that a
+// Read does not block indefinitely. In that case, if a call to ReadKey times out
+// witout data for a key, it returns the zero-value of Key and a TimeoutError.
 func (i *Input) ReadKey(r io.Reader) (Key, error) {
-
-	// TODO: first, check if i.lastn > 0 and i.rd < i.lastn. If so, there
-	// are more keys to decode from the buffer, try to get a rune from it.
-	// If there is no valid rune from the buffer, then do a Read, using
-	// the buffer after i.lastn. If the read times out, return invalid
-	// rune error, not timeout, and consume that invalid rune byte(s).
-
-	i.lastn = 0 // TODO: and i.rd = 0
-	n, err := r.Read(i.buf)
-	if err != nil || n == 0 {
-		// TODO: if n == 0 and (err == nil || err == io.EOF || err.Timeout() == true)
-		// return ErrTimeout (wrapping the original error and implementing Timeout() bool).
-		return 0, err
+	if i.sz > 0 {
+		// move buffer start to index 0 so that the maximum buffer
+		// size is available for more reads if required and reads start
+		// at 0.
+		copy(i.buf, i.buf[i.sz:i.len])
+		i.len -= i.sz
+		i.sz = 0
 	}
-	i.lastn = n
-	buf := i.buf[:n]
 
-	c, sz := utf8.DecodeRune(buf)
-	if c == utf8.RuneError && sz < 2 {
-		// TODO: i.rd++, always consume at least one byte
-		return 0, errors.New("invalid rune")
+	var rn rune = -1
+	if i.len > 0 {
+		// try to read a rune from the already loaded bytes
+		c, sz := utf8.DecodeRune(i.buf[:i.len])
+		if c == utf8.RuneError && sz < 2 {
+			rn = -1
+		} else {
+			// valid rune
+			rn = c
+			i.sz = sz
+		}
 	}
-	// TODO: i.rd = sz
 
-	// if c is a control character (if n == 1 so that if an escape
+	// if no valid rune, read more bytes
+	if rn < 0 {
+		n, err := r.Read(i.buf[i.len:])
+		if err != nil || n == 0 {
+			if i.len > 0 {
+				// we have a partial (invalid) rune, skip over a byte, do
+				// not return timeout error in this case (we have a byte)
+				i.sz = 1
+				return 0, errors.New("invalid rune")
+			}
+			// otherwise we have no byte at all, return TimeoutError if
+			// n == 0 and (err == nil || err == io.EOF || err.Timeout() == true)
+			if n == 0 {
+				to, ok := err.(interface{ Timeout() bool })
+				if err == nil || err == io.EOF || (ok && to.Timeout()) {
+					return 0, TimeoutError{err: err}
+				}
+			}
+			return 0, err
+		}
+
+		i.len += n
+		c, sz := utf8.DecodeRune(i.buf[:i.len])
+		if c == utf8.RuneError && sz < 2 {
+			i.sz = 1 // always consume at least one byte
+			return 0, errors.New("invalid rune")
+		}
+		rn = c
+		i.sz = sz
+	}
+
+	// if rn is a control character (if i.len == 1 so that if an escape
 	// sequence is read, it does not return immediately with just ESC)
-	if n == 1 && (KeyType(c) <= KeyUS || KeyType(c) == KeyDEL) {
-		return keyFromTypeMod(KeyType(c), ModNone), nil
+	if i.len == 1 && (KeyType(rn) <= KeyUS || KeyType(rn) == KeyDEL) {
+		return keyFromTypeMod(KeyType(rn), ModNone), nil
 	}
 
 	// translate escape sequences
-	if KeyType(c) == KeyESC {
-		if i.mouse && bytes.HasPrefix(buf, []byte(sgrMouseEventPrefix)) {
+	if KeyType(rn) == KeyESC {
+		if i.mouse && bytes.HasPrefix(i.buf[:i.len], []byte(sgrMouseEventPrefix)) {
 			if k := i.decodeMouseEvent(); k.Type() == KeyMouse {
-				// TODO: i.rd = i.lastn, reset with a fresh read on next key
+				i.sz = i.len
 				return k, nil
 			}
 		}
 		// NOTE: important to use the string conversion exactly like that,
 		// inside the brackets of the map key - the Go compiler optimizes
 		// this to avoid any allocation.
-		if key, ok := i.esc[string(buf)]; ok {
-			// TODO: i.rd = i.lastn, reset with a fresh read on next key
+		if key, ok := i.esc[string(i.buf[:i.len])]; ok {
+			i.sz = i.len
 			return key, nil
 		}
 		// if this is an unknown escape sequence, return KeyESCSeq and the
 		// caller may get the uninterpreted sequence from i.Bytes.
-		// TODO: i.rd = i.lastn, reset with a fresh read on next key
+		i.sz = i.len
 		return keyFromTypeMod(KeyESCSeq, ModNone), nil
 	}
-	return Key(c), nil
+	return Key(rn), nil
 }
 
 // returns either a KeyMouse key, or a KeyESCSeq if it can't properly decode
 // the mouse event.
 func (i *Input) decodeMouseEvent() Key {
 	// the prefix has already been validated, strip it from the working buffer
-	buf := i.buf[len(sgrMouseEventPrefix):i.lastn]
+	buf := i.buf[len(sgrMouseEventPrefix):i.len]
 	if len(buf) < 6 {
 		// 2 semicolons, trailing m/M, at least one byte in each section
 		return keyFromTypeMod(KeyESCSeq, ModNone)

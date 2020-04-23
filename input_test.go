@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -54,14 +53,11 @@ func TestInput_ReadKey_Multiple(t *testing.T) {
 
 			// after the loop, must return a "timeout" error (via EOF)
 			got, err := input.ReadKey(r)
-			if !errors.As(err, &TimeoutError{}) {
-				t.Fatalf("after loop: want TimeoutError, got %v (key %v)", err, got)
-			}
-			if err := errors.Unwrap(err); err != io.EOF {
-				t.Fatalf("after loop: want TimeoutError to wrap io.EOF, got %v", err)
+			if !errors.Is(err, ErrTimeout) {
+				t.Fatalf("after loop: want ErrTimeout, got %v (key %v)", err, got)
 			}
 			if !os.IsTimeout(err) {
-				t.Fatal("after loop: want TimeoutError to be identified as such with os.IsTimeout")
+				t.Fatal("after loop: want ErrTimeout to be identified as such with os.IsTimeout")
 			}
 		})
 	}
@@ -78,7 +74,7 @@ func TestInput_ReadKey_BustBuffer(t *testing.T) {
 	var count int
 	for {
 		key, err := input.ReadKey(r)
-		if errors.Is(err, io.EOF) {
+		if errors.Is(err, ErrTimeout) {
 			break
 		}
 		if err != nil {
@@ -406,6 +402,30 @@ func BenchmarkInput_ReadKey_Multiple(b *testing.B) {
 		}
 		if count != 3 {
 			b.Fatalf("want 3 keys, got %d", count)
+		}
+		r.Reset(data)
+	}
+}
+
+func BenchmarkInput_ReadKey_Timeout(b *testing.B) {
+	input := NewInput()
+	data := "⬼"
+	r := strings.NewReader(data)
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		var count int
+		for j := 0; j < 2; j++ {
+			if _, err := input.ReadKey(r); err != nil {
+				if err == ErrTimeout {
+					break
+				}
+				b.Fatal(err)
+			}
+			count++
+		}
+		if count != 1 {
+			b.Fatalf("want 1 key, got %d", count)
 		}
 		r.Reset(data)
 	}

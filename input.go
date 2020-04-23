@@ -8,29 +8,21 @@ import (
 	"unicode/utf8"
 )
 
-// TimeoutError is the type of the error returned when ReadKey fails
-// to return a key due to the read timeout expiring. If the underlying
-// Read call returned an error, this error wraps it and it can be
-// unwrapped with errors.Unwrap.
-type TimeoutError struct {
-	err error
-}
+type timeoutError string
 
-// Error returns the error message for the TimeoutError.
-func (e TimeoutError) Error() string {
-	return "zzterm: timeout"
-}
-
-// Unwrap returns a non-nil error if TimeoutError wraps an underlying
-// error returned by Read.
-func (e TimeoutError) Unwrap() error {
-	return e.err
+// Error returns the error message for the timeoutError.
+func (e timeoutError) Error() string {
+	return string(e)
 }
 
 // Timeout returns true.
-func (e TimeoutError) Timeout() bool {
+func (e timeoutError) Timeout() bool {
 	return true
 }
+
+// ErrTimeout is the error returned when ReadKey fails to return a key due to
+// the read timeout expiring.
+const ErrTimeout = timeoutError("zzterm: timetout")
 
 // Input reads input keys from a reader and returns the key pressed.
 type Input struct {
@@ -193,7 +185,7 @@ const sgrMouseEventPrefix = "\x1b[<"
 // ReadKey reads a key from r which should be the reader of a terminal set in raw
 // mode. It is recommended to set a read timeout on the raw terminal so that a
 // Read does not block indefinitely. In that case, if a call to ReadKey times out
-// witout data for a key, it returns the zero-value of Key and a TimeoutError.
+// witout data for a key, it returns the zero-value of Key and ErrTimeout.
 func (i *Input) ReadKey(r io.Reader) (Key, error) {
 	if i.sz > 0 {
 		// move buffer start to index 0 so that the maximum buffer
@@ -227,12 +219,12 @@ func (i *Input) ReadKey(r io.Reader) (Key, error) {
 				i.sz = 1
 				return 0, errors.New("invalid rune")
 			}
-			// otherwise we have no byte at all, return TimeoutError if
+			// otherwise we have no byte at all, return ErrTimeout if
 			// n == 0 and (err == nil || err == io.EOF || err.Timeout() == true)
 			if n == 0 {
 				to, ok := err.(interface{ Timeout() bool })
 				if err == nil || err == io.EOF || (ok && to.Timeout()) {
-					return 0, TimeoutError{err: err}
+					return 0, ErrTimeout
 				}
 			}
 			return 0, err

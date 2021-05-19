@@ -1,9 +1,9 @@
-# zzterm [![builds.sr.ht status](https://builds.sr.ht/~mna/zzterm.svg)](https://builds.sr.ht/~mna/zzterm?) [![GoDoc](https://godoc.org/git.sr.ht/~mna/zzterm?status.svg)](http://godoc.org/git.sr.ht/~mna/zzterm) [![go.dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat-square)](https://pkg.go.dev/git.sr.ht/~mna/zzterm)
+# zzterm [![builds.sr.ht status](https://builds.sr.ht/~mna/zzterm.svg)](https://builds.sr.ht/~mna/zzterm?) [![Go Reference](https://pkg.go.dev/badge/git.sr.ht/~mna/zzterm.svg)](https://pkg.go.dev/git.sr.ht/~mna/zzterm)
 
 Package zzterm efficiently reads and decodes terminal input keys and mouse events
 without any memory allocation. It is intended to be used with a terminal set in
 raw mode as its `io.Reader`. See the [package documentation][godoc] for details,
-API reference and usage example (alternatively, on [pkg.go.dev][pgd]).
+API reference and usage example.
 
 You can also check out [zztermtest][zztt] for more usage examples and how to
 efficiently print output to an `io.Writer` (with a zero-allocation "echo"
@@ -56,6 +56,6 @@ BenchmarkInput_ReadKey_Mouse-4           19961526   60.70 ns/op        0 B/op   
 The [BSD 3-Clause license][bsd].
 
 [bsd]: http://opensource.org/licenses/BSD-3-Clause
-[godoc]: http://godoc.org/git.sr.ht/~mna/zzterm
+[godoc]: https://pkg.go.dev/git.sr.ht/~mna/zzterm
 [pgd]: https://pkg.go.dev/git.sr.ht/~mna/zzterm
 [zztt]: https://git.sr.ht/~mna/zztermtest

@@ -12,7 +12,7 @@ tasks:
   - setup: |
       cd zzterm
       go version
-      curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b . v1.24.0
+      go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
       ./golangci-lint --version
 
   - test: |

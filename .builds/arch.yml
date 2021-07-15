@@ -14,7 +14,7 @@ tasks:
       go version
       go env
       go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-      golangci-lint --version
+      /home/build/go/bin/golangci-lint --version
 
   - test: |
       cd zzterm
@@ -26,7 +26,7 @@ tasks:
 
   - lint: |
       cd zzterm
-      golangci-lint run
+      /home/build/go/bin/golangci-lint run
 
 triggers:
   - condition: "failure"
